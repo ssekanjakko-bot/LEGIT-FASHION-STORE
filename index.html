@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGIT FASHION STORE</title>
+    <link rel="stylesheet" href="style.css">
+    <head/>
+    <body>
+        <header>
+            <div class="container"
+            <h1>LEGIT FASHION STORE!</h1>
+        </div>
+        </header>
+    </body>
+    <nav>
+        <ul>
+             <li><a href=""Home</a></li>
+                <li><a href=""Products</a></li>
+                    <li><a href=""About</a></li>
+                        <li><a href=""contact</a></li>
+                            </ul>
+      </nav>
+      <button id="cart-btn" class="cart-btn">
+        Cart (<span id="cart-count">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <h1>Curated Pieces, Timeless Style</h1>
+        <p>Discover limited collections crafted with care.</p>
+        <a href="#products" class="btn">Shop Collection</a>
+      </div>
+    </section>
+
+    <section id="products" class="products container">
+      <h2>Featured Items</h2>
+      <div id="products-grid" class="products-grid">
+        <!-- Products will be injected by script -->
+      </div>
+    </section>  <section id="about" class="about container">
+      <h2>About Us</h2>
+      <p>Legit Fashion store- a haven for fashion enthusiasts seeking unique, high-quality pieces.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>&copy; <span id="year"></span> Legit Fashion Store — All rights reserved.</small>
+    </div>
+  </footer> <!-- Product modal -->
+  <div id="product-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="modal-close" class="modal-close">&times;</button>
+      <div class="modal-body">
+        <img id="modal-image" src="" alt="">
+        <div class="modal-info">
+          <h3 id="modal-title"></h3>
+          <p id="modal-description"></p>
+          <div class="price" id="modal-price"></div>
+          <div class="quantity-row">
+            <label>Qty:</label>
+            <input type="number" id="modal-qty" value="1" min="1">
+          </div>
+          <button id="add-to-cart" class="btn">Add to cart</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- Cart drawer -->
+  <div id="cart-drawer" class="cart-drawer hidden">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+      <button id="cart-close" class="modal-close">&times;</button>
+    </div>
+    <div id="cart-items" class="cart-items"></div>
+    <div class="cart-footer">
+      <div class="cart-total">Total: $<span id="cart-total">0.00</span></div>
+      <button id="checkout-btn" class="btn primary">Checkout</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
