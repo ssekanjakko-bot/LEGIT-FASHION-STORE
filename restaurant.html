@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant - GoBite</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <!-- HEADER WITH BACK BUTTON -->
+  <header class="navbar restaurant-header">
+    <button class="back-btn" onclick="window.history.back()">←</button>
+    <h1 class="logo">GoBite</h1>
+    <button class="cart-btn">🛒 <span id="cart-count">0</span></button>
+  </header>
+
+  <!-- RESTAURANT HERO -->
+  <section class="restaurant-hero">
+    <img id="rest-image" src="" alt="Restaurant">
+    <div class="hero-info">
+      <h2 id="rest-name">Loading...</h2>
+      <div class="meta">
+        <span id="rest-rating">⭐ 0</span>
+        <span>•</span>
+        <span id="rest-time">0 min</span>
+        <span>•</span>
+        <span id="rest-fee">UGX 0 delivery</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section class="menu-section">
+    <h3>Menu</h3>
+    <div id="menu-list">
+      <!-- Menu items injected by JS -->
+    </div>
+  </section>
+
+  <!-- CART BAR -->
+  <div id="cart-bar" class="cart-bar" style="display:none;">
+    <div>
+      <p><span id="cart-items">0</span> items • UGX <span id="cart-total">0</span></p>
+    </div>
+    <button onclick="goToCart()">View Cart</button>
+  </div>
+
+  <script src="assets/restaurant.js"></script>
+</body>
+</html>
