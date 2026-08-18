@@ -146,3 +146,17 @@ footer {
   .navbar { padding: 14px 16px; }
   .logo { font-size: 22px; }
 }
+
+.location-bar {
+  background: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--green);
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
+
