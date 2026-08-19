@@ -8,12 +8,14 @@
 </head>
 <body>
 
+  <!-- HEADER -->
   <header class="navbar restaurant-header">
     <button class="back-btn" onclick="window.history.back()">←</button>
     <h1 class="logo">GoBite</h1>
-    <button class="cart-btn">🛒 <span id="cart-count">0</span></button>
+    <button class="cart-btn" onclick="window.location='cart.html'">🛒 <span id="cart-count">0</span></button>
   </header>
 
+  <!-- RESTAURANT HERO -->
   <section class="restaurant-hero">
     <img id="rest-image" src="" alt="Restaurant">
     <div class="hero-info">
@@ -28,19 +30,24 @@
     </div>
   </section>
 
-  <div class="category-tabs" id="category-tabs"></div>
+  <!-- 10 CATEGORY TABS -->
+  <div class="category-tabs" id="category-tabs">
+    <!-- Buttons injected by JS -->
+  </div>
 
+  <!-- MENU - SHOWS ONLY WHEN CATEGORY CLICKED -->
   <section class="menu-section">
     <div id="menu-list">
       <p style="text-align:center; color:#888; padding:40px;">Select a category to see menu items</p>
     </div>
   </section>
 
+  <!-- CART BAR -->
   <div id="cart-bar" class="cart-bar" style="display:none;">
     <div>
       <p><span id="cart-items">0</span> items • UGX <span id="cart-total">0</span></p>
     </div>
-    <button onclick="goToCart()">View Cart</button>
+    <button onclick="window.location='cart.html'">View Cart</button>
   </div>
 
   <script src="assets/restaurant.js"></script>
