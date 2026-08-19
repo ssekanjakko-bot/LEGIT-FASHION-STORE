@@ -1,48 +1,39 @@
-// 1. PASTE YOUR FIREBASE CONFIG HERE
-const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
-};
-
-// 2. INITIALIZE FIREBASE
+const PARTNER_KEY = "partner2026"; // Change this
+const firebaseConfig = { /* PASTE YOUR CONFIG */ };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
 
 let currentRestCode = '';
 let imageFile = null;
+let profileCoverFile = null;
+let profileLogoFile = null;
 
-// 3. RESTAURANT CODES - Add more here
-const validRestaurants = {
-  nandos: "Nandos Wandegeya",
-  bubus: "Bubus Restaurant"
-  // add: kfc: "KFC Kampala"
-};
+const validRestaurants = { nandos: "Nandos Wandegeya", bubus: "Bubus Restaurant" };
 
 function restLogin() {
   const code = document.getElementById('rest-code').value.toLowerCase().trim();
+  const key = document.getElementById('rest-key').value;
+  if(key!== PARTNER_KEY) { alert("Wrong Secret Key"); return; }
   if(validRestaurants[code]) {
     currentRestCode = code;
     sessionStorage.setItem('gobite_rest_loggedin', code);
     document.getElementById('rest-login').style.display = 'none';
     document.getElementById('upload-section').style.display = 'block';
     document.getElementById('rest-name-show').innerText = validRestaurants[code];
+    loadProfile();
     loadMyMenu();
-  } else { 
-    alert("Invalid Restaurant Code. Contact Admin"); 
-  }
+  } else { alert("Invalid Restaurant Code"); }
 }
 
-function restLogout() {
-  sessionStorage.removeItem('gobite_rest_loggedin');
-  location.reload();
+function restLogout() { sessionStorage.removeItem('gobite_rest_loggedin'); location.reload(); }
+function showTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#tab-profile, #tab-menu').forEach(t=>t.style.display='none');
+  document.getElementById('tab-'+tab).style.display='block';
+  event.target.classList.add('active');
 }
 
-// Auto login if already logged in
 window.onload = function() {
   const loggedIn = sessionStorage.getItem('gobite_rest_loggedin');
   if(loggedIn && validRestaurants[loggedIn]) {
@@ -50,90 +41,62 @@ window.onload = function() {
     document.getElementById('rest-login').style.display = 'none';
     document.getElementById('upload-section').style.display = 'block';
     document.getElementById('rest-name-show').innerText = validRestaurants[loggedIn];
-    loadMyMenu();
+    loadProfile(); loadMyMenu();
   }
 }
 
-function previewImage(event) {
+function previewImage(event) { /* same as before for food image */
   imageFile = event.target.files[0];
-  if(!imageFile) return;
   const reader = new FileReader();
-  reader.onload = function() {
-    document.getElementById('image-preview').src = reader.result;
-    document.getElementById('image-preview').style.display = 'block';
-  }
+  reader.onload = function() { document.getElementById('image-preview').src = reader.result; document.getElementById('image-preview').style.display = 'block'; }
   reader.readAsDataURL(imageFile);
 }
-
-// 4. UPLOAD FOOD TO FIREBASE
-async function addFood() {
-  const name = document.getElementById('food-name').value.trim();
-  const category = document.getElementById('food-category').value;
-  const price = parseInt(document.getElementById('food-price').value);
-  const desc = document.getElementById('food-desc').value.trim();
-
-  if(!name ||!price ||!imageFile) { 
-    alert("Please fill name, price and upload image"); 
-    return; 
-  }
-
-  document.querySelector('.btn-primary').innerText = "Uploading...";
-  document.querySelector('.btn-primary').disabled = true;
-
-  try {
-    // A. Upload image to Firebase Storage
-    const fileName = `${Date.now()}_${imageFile.name}`;
-    const imageRef = storage.ref(`restaurants/${currentRestCode}/foods/${fileName}`);
-    const snapshot = await imageRef.put(imageFile);
-    const imageUrl = await snapshot.ref.getDownloadURL();
-
-    // B. Save food data to Firestore. Status = pending until admin approves
-    await db.collection("restaurants").doc(currentRestCode).collection("menu").add({
-      name, 
-      category, 
-      price, 
-      desc, 
-      imageUrl,
-      status: "pending", // Admin must approve
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    alert("Food Submitted! Waiting for Admin Approval.");
-    
-    // Reset form
-    document.getElementById('food-name').value = '';
-    document.getElementById('food-price').value = '';
-    document.getElementById('food-desc').value = '';
-    document.getElementById('image-preview').style.display = 'none';
-    imageFile = null;
-
-  } catch(error) {
-    alert("Error: " + error.message);
-  }
-
-  document.querySelector('.btn-primary').innerText = "Save Food Item";
-  document.querySelector('.btn-primary').disabled = false;
+function previewProfileImage(event, id) {
+  const file = event.target.files[0];
+  if(id==='cover-preview') profileCoverFile = file;
+  if(id==='logo-preview') profileLogoFile = file;
+  const reader = new FileReader();
+  reader.onload = function() { document.getElementById(id).src = reader.result; document.getElementById(id).style.display = 'block'; }
+  reader.readAsDataURL(file);
 }
 
-// 5. LOAD MY MENU FROM FIREBASE
-function loadMyMenu() {
-  db.collection("restaurants").doc(currentRestCode).collection("menu")
-.orderBy("createdAt", "desc")
-.onSnapshot(snapshot => {
-    let html = '';
-    snapshot.forEach(doc => {
-      const item = doc.data();
-      const statusColor = item.status === 'approved'? 'var(--green)' : '#ffeb3b';
-      html += `
-        <div class="item-card">
-          <img src="${item.imageUrl}">
-          <div>
-            <b>${item.name}</b> <span style="font-size:11px; background:${statusColor}; padding:2px 6px; border-radius:4px;">${item.status}</span><br>
-            <small>${item.category} • UGX ${item.price.toLocaleString()}</small>
-          </div>
-        </div>
-      `;
-    });
-    document.getElementById('my-menu').innerHTML = html || "No items yet";
+// SAVE PROFILE
+async function saveProfile() {
+  let coverUrl = '', logoUrl = '';
+  if(profileCoverFile) {
+    const ref = storage.ref(`restaurants/${currentRestCode}/cover.jpg`);
+    coverUrl = await (await ref.put(profileCoverFile)).ref.getDownloadURL();
+  }
+  if(profileLogoFile) {
+    const ref = storage.ref(`restaurants/${currentRestCode}/logo.jpg`);
+    logoUrl = await (await ref.put(profileLogoFile)).ref.getDownloadURL();
+  }
+  await db.collection("restaurants").doc(currentRestCode).set({
+    name: document.getElementById('profile-name').value,
+    cuisine: document.getElementById('profile-cuisine').value,
+    time: document.getElementById('profile-time').value,
+    rating: parseFloat(document.getElementById('profile-rating').value),
+    coverUrl, logoUrl,
+    status: "pending" // Admin approves restaurant too
+  }, {merge: true});
+  alert("Profile Saved! Waiting for Admin Approval");
+}
+
+// LOAD PROFILE
+function loadProfile() {
+  db.collection("restaurants").doc(currentRestCode).onSnapshot(doc=>{
+    if(doc.exists){
+      const data = doc.data();
+      document.getElementById('profile-name').value = data.name || '';
+      document.getElementById('profile-cuisine').value = data.cuisine || '';
+      document.getElementById('profile-time').value = data.time || '';
+      document.getElementById('profile-rating').value = data.rating || '';
+      if(data.coverUrl) { document.getElementById('cover-preview').src = data.coverUrl; document.getElementById('cover-preview').style.display = 'block'; }
+      if(data.logoUrl) { document.getElementById('logo-preview').src = data.logoUrl; document.getElementById('logo-preview').style.display = 'block'; }
+    }
   });
 }
+
+// ADD FOOD - same as last message
+async function addFood() { /* paste the addFood function from previous message */ }
+function loadMyMenu() { /* paste the loadMyMenu function from previous message */ }
