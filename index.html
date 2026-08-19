@@ -8,13 +8,11 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="navbar">
     <h1 class="logo">GoBite</h1>
     <button class="cart-btn">🛒 <span id="cart-count">0</span></button>
   </header>
 
-  <!-- SEARCH + LOCATION -->
   <section class="search-section">
     <div class="location-bar">
       <span id="location-text">📍 Getting your location...</span>
@@ -22,12 +20,9 @@
     <input type="text" id="searchInput" placeholder="Search restaurants or food" onkeyup="filterRestaurants()">
   </section>
 
-  <!-- RESTAURANT LISTINGS -->
   <section class="restaurants">
     <h2>Restaurants Near You</h2>
-    <div id="restaurant-list">
-      <!-- Cards will be injected by JS -->
-    </div>
+    <div id="restaurant-list"></div>
     <p id="no-results" style="display:none; text-align:center; padding:40px;">No restaurants found 😔</p>
   </section>
 
