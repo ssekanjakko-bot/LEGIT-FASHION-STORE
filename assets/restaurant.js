@@ -1,142 +1,84 @@
-const restaurantData = {
-  nandos: {
-    name: 'Nandos Wandegeya',
-    rating: 4.5,
-    time: '25-35 min',
-    fee: 'UGX 3,000',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
-    menu: {
-      "Chicken": [
-        { id: 1, name: '1/4 Chicken + 2 Sides', price: 18000, desc: 'Grilled chicken', image: 'https://images.unsplash.com/photo-1598515214211-89ce2bde4f8e?w=400' },
-        { id: 2, name: '1/2 Chicken', price: 32000, desc: 'Full grilled chicken', image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400' },
-      ],
-      "Burgers": [
-        { id: 3, name: 'Chicken Burger', price: 15000, desc: 'With chips', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400' },
-        { id: 4, name: 'Beef Burger', price: 17000, desc: 'With cheese', image: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=400' },
-      ],
-      "Rice & Wraps": [
-        { id: 5, name: 'Peri-Peri Rice', price: 8000, desc: 'Spicy rice', image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400' },
-      ],
-      "Sides": [
-        { id: 6, name: 'Chips', price: 7000, desc: 'Crispy chips', image: 'https://images.unsplash.com/photo-1585238341578-3a1cf11a2b74?w=400' },
-      ],
-      "Drinks": [
-        { id: 7, name: 'Coke 500ml', price: 3000, desc: 'Cold drink', image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400' },
-      ],
-      "Platters": [],
-      "Salads": [],
-      "Desserts": [],
-      "Breakfast": [],
-      "Combos": []
-    }
-  },
-  bubus: {
-    name: 'Bubus Restaurant',
-    rating: 4.7,
-    time: '30-40 min',
-    fee: 'UGX 4,000',
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800',
-    menu: {
-      "Local Dishes": [
-        { id: 8, name: 'Luwombo Chicken', price: 22000, desc: 'Steamed in banana leaves', image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400' },
-      ],
-      "Fast Food": [
-        { id: 9, name: 'Rolex', price: 5000, desc: 'Chapati + eggs', image: 'https://images.unsplash.com/photo-1627308595181-b5e0a3d1b3b1?w=400' },
-      ],
-      "Chicken": [], "Burgers": [], "Rice & Wraps": [], "Sides": [], "Drinks": [],
-      "Platters": [], "Salads": [], "Desserts": [], "Breakfast": [], "Combos": []
-    }
-  }
-};
+const urlParams = new URLSearchParams(window.location.search);
+const restaurantId = urlParams.get('id');
 
 let cart = JSON.parse(localStorage.getItem('gobite_cart')) || [];
-let currentRestaurant = null;
-let currentRestaurantId = '';
+let currentRestaurant = {};
 
-function updateCartBar() {
-  const cartBar = document.getElementById('cart-bar');
-  const itemCount = cart.reduce((sum, item) => sum + item.qty, 0);
-  const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  document.getElementById('cart-items').innerText = itemCount;
-  document.getElementById('cart-total').innerText = total.toLocaleString();
-  document.getElementById('cart-count').innerText = itemCount;
-  cartBar.style.display = itemCount > 0? 'flex' : 'none';
-}
-
-// FIXED: ENFORCE 1 RESTAURANT PER ORDER
-function addToCart(item, restaurantId, restaurantName) {
-  const cartRestaurantId = localStorage.getItem('gobite_cart_restaurant');
-
-  if(cartRestaurantId && cartRestaurantId!== restaurantId) {
-    const confirmSwitch = confirm(`Your cart has items from another restaurant. Clear cart and add ${item.name} from ${restaurantName}?`);
-    if(confirmSwitch) {
-      cart = [];
-      localStorage.clear();
-    } else {
-      return;
-    }
-  }
-
-  const existing = cart.find(c => c.id === item.id);
-  if(existing) { existing.qty += 1; }
-  else { cart.push({...item, qty: 1}); }
-
-  localStorage.setItem('gobite_cart_restaurant', restaurantId);
-  localStorage.setItem('gobite_cart_restaurant_name', restaurantName);
-  localStorage.setItem('gobite_cart', JSON.stringify(cart));
-
-  updateCartBar();
-}
-
-function showCategory(categoryName, btn) {
-  const menuList = document.getElementById('menu-list');
-  const items = currentRestaurant.menu[categoryName];
-
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  if(!items || items.length === 0) {
-    menuList.innerHTML = `<p style="text-align:center; color:#888; padding:40px;">No items in ${categoryName} yet</p>`;
-    return;
-  }
-
-  menuList.innerHTML = items.map(item => `
-    <div class="menu-item">
-      <img class="menu-item-img" src="${item.image}" alt="${item.name}">
-      <div class="menu-info">
-        <h4>${item.name}</h4>
-        <p>${item.desc}</p>
-        <div class="price">UGX ${item.price.toLocaleString()}</div>
+// 1. LOAD RESTAURANT PROFILE
+db.collection("restaurants").doc(restaurantId).get().then(doc => {
+  if(doc.exists && doc.data().status === 'approved') {
+    currentRestaurant = doc.data();
+    document.getElementById('restaurant-header').innerHTML = `
+      <img src="${currentRestaurant.coverUrl}" class="header-img">
+      <div class="header-info">
+        <img src="${currentRestaurant.logoUrl}" class="header-logo">
+        <h2>${currentRestaurant.name}</h2>
+        <p class="meta">⭐ ${currentRestaurant.rating} • ${currentRestaurant.cuisine} • ${currentRestaurant.time}</p>
       </div>
-      <button class="add-to-cart-btn" onclick='addToCart(${JSON.stringify(item)}, "${currentRestaurantId}", "${currentRestaurant.name}")'>
-        <span>+</span> Add
-      </button>
-    </div>
-  `).join('');
+    `;
+    loadMenu();
+  } else {
+    document.getElementById('restaurant-header').innerHTML = "Restaurant not found";
+  }
+});
+
+// 2. LOAD APPROVED MENU GROUPED BY CATEGORY
+function loadMenu() {
+  db.collection("restaurants").doc(restaurantId).collection("menu")
+ .where("status", "==", "approved")
+ .onSnapshot(snapshot => {
+    const menuByCategory = {};
+    snapshot.forEach(doc => {
+      const item = doc.data();
+      item.id = doc.id;
+      if(!menuByCategory[item.category]) menuByCategory[item.category] = [];
+      menuByCategory[item.category].push(item);
+    });
+
+    // Build category tabs
+    let tabsHtml = '';
+    let menuHtml = '';
+    Object.keys(menuByCategory).forEach((category, index) => {
+      tabsHtml += `<button class="tab ${index===0?'active':''}" onclick="scrollToCategory('${category}')">${category}</button>`;
+      
+      menuHtml += `<h3 id="cat-${category}" class="category-title">${category}</h3>`;
+      menuByCategory[category].forEach(item => {
+        menuHtml += `
+          <div class="menu-item">
+            <img src="${item.imageUrl}">
+            <div class="menu-info">
+              <h4>${item.name}</h4>
+              <p>${item.desc}</p>
+              <span class="price">UGX ${item.price.toLocaleString()}</span>
+            </div>
+            <button class="add-btn" onclick='addToCart(${JSON.stringify(item)})'>+</button>
+          </div>
+        `;
+      });
+    });
+
+    document.getElementById('category-tabs').innerHTML = tabsHtml;
+    document.getElementById('menu-list').innerHTML = menuHtml;
+  });
 }
 
-window.onload = function() {
-  const params = new URLSearchParams(window.location.search);
-  currentRestaurantId = params.get('id');
-  currentRestaurant = restaurantData[currentRestaurantId];
-  if(!currentRestaurant) return;
+function scrollToCategory(category) {
+  document.getElementById('cat-'+category).scrollIntoView({behavior: 'smooth'});
+}
 
-  document.getElementById('rest-name').innerText = currentRestaurant.name;
-  document.getElementById('rest-image').src = currentRestaurant.image;
-  document.getElementById('rest-rating').innerText = `⭐ ${currentRestaurant.rating}`;
-  document.getElementById('rest-time').innerText = currentRestaurant.time;
-  document.getElementById('rest-fee').innerText = `${currentRestaurant.fee} delivery`;
-  document.title = `${currentRestaurant.name} - GoBite`;
+// 3. CART FUNCTION
+function addToCart(item) {
+  item.restaurantId = restaurantId;
+  item.restaurantName = currentRestaurant.name;
+  const existing = cart.find(c => c.id === item.id);
+  if(existing) existing.qty++;
+  else { item.qty = 1; cart.push(item); }
+  localStorage.setItem('gobite_cart', JSON.stringify(cart));
+  updateCartCount();
+  alert(item.name + " added to cart");
+}
 
-  const tabsContainer = document.getElementById('category-tabs');
-  const allCategories = [
-    "Chicken", "Burgers", "Rice & Wraps", "Sides", "Drinks",
-    "Platters", "Salads", "Desserts", "Breakfast", "Combos"
-  ];
-
-  tabsContainer.innerHTML = allCategories.map(cat => `
-    <button class="tab-btn" onclick="showCategory('${cat}', this)">${cat}</button>
-  `).join('');
-
-  updateCartBar();
-};
+function updateCartCount() {
+  document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+}
+updateCartCount();
