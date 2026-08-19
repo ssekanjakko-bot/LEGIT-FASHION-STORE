@@ -158,5 +158,45 @@ body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
   font-size: 15px;
   cursor: pointer;
 }
+ .cart-section { padding: 20px; max-width: 600px; margin: 0 auto; }
+.cart-item {
+  background: white;
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+.cart-item img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+.cart-info { flex: 1; }
+.cart-info h4 { font-size: 15px; font-weight: 700; }
+.cart-info p { color: var(--green); font-weight: 700; }
+.qty-control { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.qty-control button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid #ddd; background: white; font-weight: 800; cursor: pointer; }
+.cart-price { font-weight: 800; }
+.remove-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
+
+.bill-section {
+  background: white;
+  padding: 16px;
+  border-radius: 14px;
+  margin: 20px 0;
+}
+.bill-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.bill-row.total { font-size: 18px; font-weight: 800; border-top: 1px dashed #ddd; padding-top: 10px; }
+
+.btn-primary {
+  background: var(--green);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 800;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn-large { padding: 16px; font-size: 18px; }
 
 footer { text-align: center; padding: 30px 20px; color: #888; font-size: 13px; }
