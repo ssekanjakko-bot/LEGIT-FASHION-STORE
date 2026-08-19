@@ -1,38 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GoBite - Food Delivery</title>
-  <link rel="stylesheet" href="assets/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    .search-bar { margin: 20px 16px; display:flex; gap:10px; }
-    .search-bar input { flex:1; padding: 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 15px; }
-    .gps-btn { padding: 14px; border:none; background:var(--primary); color:white; border-radius:12px; font-weight:600; }
-    .section-title { padding: 0 16px; margin-top: 20px; font-size: 18px; font-weight: 700; }
-    .distance-badge { font-size:12px; color:var(--primary); font-weight:600; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodHub Admin Panel</title>
+<style>
+body{font-family:Arial;background:#f5f5f5;margin:0;padding:20px}
+.container{max-width:900px;margin:auto;background:white;padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.1)}
+h1{color:#FF6B35}
+.card{border:1px solid #ddd;padding:15px;border-radius:10px;margin-bottom:15px}
+.card img{width:60px;height:60px;object-fit:cover;border-radius:8px;margin-right:10px}
+.btn{padding:8px 15px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;margin-right:5px}
+.approve{background:#28a745;color:white}
+.reject{background:#dc3545;color:white}
+.pending{color:orange;font-weight:bold}
+.approved{color:green;font-weight:bold}
+</style>
 </head>
 <body>
-    <header class="navbar">
-      <h1 class="logo">GoBite</h1>
-      <button class="cart-btn" onclick="window.location='cart.html'">Cart <span id="cart-count">0</span></button>
-    </header>
+<div class="container">
+  <h1>🔥 FoodHub Admin Panel</h1>
+  <div id="restaurantList">Loading...</div>
+</div>
 
-    <div class="search-bar">
-      <input type="text" id="search-input">
-      <button class="gps-btn" onclick="getLocation()">📍 Near Me</button>
+<script type="module">
+import { db } from './firebase.js';
+import { collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+loadRestaurants();
+
+async function loadRestaurants(){
+  const list = document.getElementById('restaurantList');
+  list.innerHTML = 'Loading...';
+  const snap = await getDocs(collection(db, 'restaurants'));
+  list.innerHTML = '';
+  if(snap.empty){ list.innerHTML = '<p>No restaurants yet. Go save one in partner774.html first</p>'; return; }
+  
+  snap.forEach(docSnap => {
+    const r = docSnap.data();
+    const statusClass = r.status === 'approved' ? 'approved' : 'pending';
+    list.innerHTML += `
+    <div class="card">
+      <div style="display:flex;align-items:center">
+        <img src="${r.logoUrl || 'https://via.placeholder.com/60'}" />
+        <div>
+          <h4 style="margin:0">${r.name}</h4>
+          <p style="margin:0">${r.cuisine} - ${r.phone}</p>
+          <p style="margin:0" class="${statusClass}">Status: ${r.status}</p>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        ${r.status !== 'approved' ? `<button class="btn approve" onclick="approveRestaurant('${docSnap.id}')">Approve</button>` : ''}
+        <button class="btn reject" onclick="rejectRestaurant('${docSnap.id}')">Reject</button>
+      </div>
     </div>
+    `;
+  });
+}
 
-    <h2 class="section-title">Restaurants near you</h2>
-    <div class="restaurant-list" id="restaurant-list">Loading...</div>
+window.approveRestaurant = async function(id){
+  await updateDoc(doc(db, 'restaurants', id), {status: 'approved'});
+  alert('Restaurant Approved!');
+  loadRestaurants();
+}
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
-    <script src="lib/firebase.js"></script>
-    <script src="assets/index.js"></script>
+window.rejectRestaurant = async function(id){
+  await updateDoc(doc(db, 'restaurants', id), {status: 'rejected'});
+  alert('Restaurant Rejected');
+  loadRestaurants();
+}
+</script>
 </body>
 </html>
