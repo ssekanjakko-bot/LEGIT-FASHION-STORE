@@ -5,51 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Restaurant - GoBite</title>
   <link rel="stylesheet" href="assets/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <header class="navbar">
+      <button class="back-btn" onclick="history.back()">←</button>
+      <h1 class="logo">GoBite</h1>
+      <button class="cart-btn" onclick="window.location='cart.html'">Cart <span id="cart-count">0</span></button>
+    </header>
 
-  <!-- HEADER -->
-  <header class="navbar restaurant-header">
-    <button class="back-btn" onclick="window.history.back()">←</button>
-    <h1 class="logo">GoBite</h1>
-    <button class="cart-btn" onclick="window.location='cart.html'">🛒 <span id="cart-count">0</span></button>
-  </header>
-
-  <!-- RESTAURANT HERO -->
-  <section class="restaurant-hero">
-    <img id="rest-image" src="" alt="Restaurant">
-    <div class="hero-info">
-      <h2 id="rest-name">Loading...</h2>
-      <div class="meta">
-        <span id="rest-rating">⭐ 0</span>
-        <span>•</span>
-        <span id="rest-time">0 min</span>
-        <span>•</span>
-        <span id="rest-fee">UGX 0 delivery</span>
-      </div>
+    <div class="restaurant-header" id="restaurant-header">
+      Loading...
     </div>
-  </section>
 
-  <!-- 10 CATEGORY TABS -->
-  <div class="category-tabs" id="category-tabs">
-    <!-- Buttons injected by JS -->
-  </div>
-
-  <!-- MENU - SHOWS ONLY WHEN CATEGORY CLICKED -->
-  <section class="menu-section">
-    <div id="menu-list">
-      <p style="text-align:center; color:#888; padding:40px;">Select a category to see menu items</p>
+    <div class="category-tabs" id="category-tabs">
+      <!-- Categories will load here -->
     </div>
-  </section>
 
-  <!-- CART BAR -->
-  <div id="cart-bar" class="cart-bar" style="display:none;">
-    <div>
-      <p><span id="cart-items">0</span> items • UGX <span id="cart-total">0</span></p>
+    <div class="menu-list" id="menu-list">
+      <!-- Menu items will load here -->
     </div>
-    <button onclick="window.location='cart.html'">View Cart</button>
-  </div>
 
-  <script src="assets/restaurant.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="lib/firebase.js"></script>
+    <script src="assets/restaurant.js"></script>
 </body>
 </html>
