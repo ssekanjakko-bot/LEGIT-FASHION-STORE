@@ -3,33 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GoBite UG - Restaurants Near You</title>
+  <title>GoBite - Food Delivery</title>
   <link rel="stylesheet" href="assets/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    .search-bar { margin: 20px 16px; }
+    .search-bar input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 15px; }
+    .section-title { padding: 0 16px; margin-top: 20px; font-size: 18px; font-weight: 700; }
+  </style>
 </head>
 <body>
+    <header class="navbar">
+      <h1 class="logo">GoBite</h1>
+      <button class="cart-btn" onclick="window.location='cart.html'">Cart <span id="cart-count">0</span></button>
+    </header>
 
-  <header class="navbar">
-    <h1 class="logo">GoBite</h1>
-    <button class="cart-btn">🛒 <span id="cart-count">0</span></button>
-  </header>
-
-  <section class="search-section">
-    <div class="location-bar">
-      <span id="location-text">📍 Getting your location...</span>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search restaurants or dishes...">
     </div>
-    <input type="text" id="searchInput" placeholder="Search restaurants or food" onkeyup="filterRestaurants()">
-  </section>
 
-  <section class="restaurants">
-    <h2>Restaurants Near You</h2>
-    <div id="restaurant-list"></div>
-    <p id="no-results" style="display:none; text-align:center; padding:40px;">No restaurants found 😔</p>
-  </section>
+    <h2 class="section-title">Restaurants near you</h2>
+    <div class="restaurant-list" id="restaurant-list">
+      Loading...
+    </div>
 
-  <footer>
-    <p>© 2026 GoBite UG. Food delivery in Kampala.</p>
-  </footer>
-
-  <script src="assets/app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="lib/firebase.js"></script>
+    <script src="assets/index.js"></script>
 </body>
 </html>
