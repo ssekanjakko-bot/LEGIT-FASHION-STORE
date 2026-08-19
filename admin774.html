@@ -1,94 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="robots" content="noindex, nofollow"> <!-- Hide from Google -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - GoBite</title>
-  <link rel="stylesheet" href="assets/style.css">
-  <style>
- .admin-wrap { max-width: 1000px; margin: 0 auto; padding: 20px; }
- .stat-card { background: white; padding: 16px; border-radius: 14px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
- .stat-card h3 { font-size: 28px; color: var(--green); }
- .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px; }
- .admin-table { width: 100%; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
- .admin-table th { background: var(--green); color: white; padding: 14px; text-align: left; }
- .admin-table td { padding: 14px; border-bottom: 1px solid #eee; }
- .status-new { background: #ffeb3b; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; }
- .status-accepted { background: var(--green); color: white; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; }
- .blocked { text-align: center; padding: 100px 20px; color: #888; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodHub Admin Panel</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<style>
+body{font-family:Arial;background:#f5f5f5;margin:0;padding:20px}
+.container{max-width:900px;margin:auto;background:white;padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.1)}
+h1{color:#FF6B35}
+.card{border:1px solid #ddd;padding:15px;border-radius:10px;margin-bottom:15px}
+.card img{width:60px;height:60px;object-fit:cover;border-radius:8px;margin-right:10px}
+.btn{padding:8px 15px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;margin-right:5px}
+.approve{background:#28a745;color:white}
+.reject{background:#dc3545;color:white}
+.pending{color:orange;font-weight:bold}
+.approved{color:green;font-weight:bold}
+#loginBox{display:none}
+</style>
 </head>
-<body style="background:var(--bg);">
-
-  <!-- BLOCKED SCREEN -->
-  <div id="blocked-screen" class="blocked" style="display:none;">
-    <h1>404</h1>
-    <p>Page Not Found</p>
+<body>
+<div class="container">
+  <h1>🔥 FoodHub Admin Panel</h1>
+  <div id="loginBox">
+    <h3>Admin Login</h3>
+    <input id="adminKey" placeholder="Enter Admin Key" type="password">
+    <button onclick="adminLogin()" class="btn approve">Login</button>
   </div>
 
-  <!-- ADMIN CONTENT -->
-  <div id="admin-content" style="display:none;">
-    <header class="navbar">
-      <button class="back-btn" onclick="window.location='index.html'">←</button>
-      <h1 class="logo">GoBite Admin</h1>
-      <button class="cart-btn" onclick="logout()">Logout</button>
-    </header>
+  <div id="dashboard" style="display:none;">
+    <h3>Pending Restaurants</h3>
+    <div id="restaurantList">Loading...</div>
+  </div>
+</div>
 
-    <div class="admin-wrap">
-      <!-- LOGIN -->
-      <div id="login-box" class="admin-section">
-        <h2>Admin Login</h2>
-        <p style="color:#888; font-size:13px; margin-bottom:12px;">Hint: Password is `admin123`</p>
-        <input type="password" id="admin-pass" placeholder="Enter Admin Password" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:12px; margin-bottom:12px;">
-        <button class="btn-primary" onclick="login()">Login</button>
+<script>
+// YOUR FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "PASTE_YOUR_SENDER_ID",
+  appId: "PASTE_YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const ADMIN_KEY = "admin2026"; // change this
+
+function adminLogin(){
+  if(document.getElementById('adminKey').value === ADMIN_KEY){
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadRestaurants();
+  } else { alert('Wrong key') }
+}
+
+// Show login first
+document.getElementById('loginBox').style.display = 'block';
+
+async function loadRestaurants(){
+  const list = document.getElementById('restaurantList');
+  list.innerHTML = 'Loading...';
+  const snap = await db.collection('restaurants').get();
+  list.innerHTML = '';
+  if(snap.empty){ list.innerHTML = 'No restaurants yet'; return; }
+  
+  snap.forEach(doc => {
+    const r = doc.data();
+    const statusClass = r.status === 'approved' ? 'approved' : 'pending';
+    list.innerHTML += `
+    <div class="card">
+      <div style="display:flex;align-items:center">
+        <img src="${r.logoUrl || 'https://via.placeholder.com/60'}" />
+        <div>
+          <h4 style="margin:0">${r.name}</h4>
+          <p style="margin:0">${r.cuisine} - ${r.phone}</p>
+          <p style="margin:0" class="${statusClass}">Status: ${r.status}</p>
+        </div>
       </div>
-
-      <!-- DASHBOARD -->
-      <div id="dashboard" style="display:none;">
-        <h2 style="margin:20px 0;">Dashboard</h2>
-
-        <div class="admin-grid">
-          <div class="stat-card">
-            <p>New Orders</p>
-            <h3 id="order-count">0</h3>
-          </div>
-          <div class="stat-card">
-            <p>Total Restaurants</p>
-            <h3 id="rest-count">2</h3>
-          </div>
-          <div class="stat-card">
-            <p>Total Menu Items</p>
-            <h3 id="item-count">0</h3>
-          </div>
-        </div>
-
-        <div class="admin-section">
-          <h2>🔔 Incoming Orders</h2>
-          <div id="orders-list">No orders yet</div>
-        </div>
-
-        <div class="admin-section">
-          <h2>All Restaurants & Menu</h2>
-          <table class="admin-table">
-            <thead><tr><th>Restaurant</th><th>Category</th><th>Item</th><th>Price</th></tr></thead>
-            <tbody id="menu-list-admin"></tbody>
-          </table>
-        </div>
+      <div style="margin-top:10px">
+        <button class="btn approve" onclick="updateStatus('${doc.id}', 'approved')">Approve</button>
+        <button class="btn reject" onclick="updateStatus('${doc.id}', 'rejected')">Reject</button>
       </div>
     </div>
-  </div>
+    `;
+  });
+}
 
-  <script src="assets/admin.js"></script>
-  <script>
-    // SECRET KEY CHECK - THIS MAKES IT HIDDEN
-    const SECRET_KEY = "gobiteboss2026";
-    const params = new URLSearchParams(window.location.search);
-    if(params.get('key') === SECRET_KEY) {
-      document.getElementById('admin-content').style.display = 'block';
-    } else {
-      document.getElementById('blocked-screen').style.display = 'block';
-    }
-  </script>
+async function updateStatus(id, status){
+  await db.collection('restaurants').doc(id).update({status: status});
+  alert('Restaurant ' + status);
+  loadRestaurants();
+}
+</script>
 </body>
 </html>
