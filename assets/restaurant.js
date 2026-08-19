@@ -1,13 +1,12 @@
 const urlParams = new URLSearchParams(window.location.search);
 const restaurantId = urlParams.get('id');
-
 let cart = JSON.parse(localStorage.getItem('gobite_cart')) || [];
 let currentRestaurant = {};
 
-// 1. LOAD RESTAURANT PROFILE
+// LOAD RESTAURANT PROFILE
 db.collection("restaurants").doc(restaurantId).get().then(doc => {
   if(doc.exists && doc.data().status === 'approved') {
-    currentRestaurant = doc.data();
+    currentRestaurant = {id: doc.id,...doc.data()};
     document.getElementById('restaurant-header').innerHTML = `
       <img src="${currentRestaurant.coverUrl}" class="header-img">
       <div class="header-info">
@@ -18,29 +17,26 @@ db.collection("restaurants").doc(restaurantId).get().then(doc => {
     `;
     loadMenu();
   } else {
-    document.getElementById('restaurant-header').innerHTML = "Restaurant not found";
+    document.getElementById('restaurant-header').innerHTML = "Restaurant not found or not approved";
   }
 });
 
-// 2. LOAD APPROVED MENU GROUPED BY CATEGORY
+// LOAD APPROVED MENU GROUPED BY CATEGORY
 function loadMenu() {
   db.collection("restaurants").doc(restaurantId).collection("menu")
- .where("status", "==", "approved")
- .onSnapshot(snapshot => {
+.where("status", "==", "approved")
+.onSnapshot(snapshot => {
     const menuByCategory = {};
     snapshot.forEach(doc => {
-      const item = doc.data();
-      item.id = doc.id;
+      const item = {id: doc.id,...doc.data()};
       if(!menuByCategory[item.category]) menuByCategory[item.category] = [];
       menuByCategory[item.category].push(item);
     });
 
-    // Build category tabs
     let tabsHtml = '';
     let menuHtml = '';
     Object.keys(menuByCategory).forEach((category, index) => {
       tabsHtml += `<button class="tab ${index===0?'active':''}" onclick="scrollToCategory('${category}')">${category}</button>`;
-      
       menuHtml += `<h3 id="cat-${category}" class="category-title">${category}</h3>`;
       menuByCategory[category].forEach(item => {
         menuHtml += `
@@ -49,14 +45,13 @@ function loadMenu() {
             <div class="menu-info">
               <h4>${item.name}</h4>
               <p>${item.desc}</p>
-              <span class="price">UGX ${item.price.toLocaleString()}</span>
+              <span class="price">UGX ${Number(item.price).toLocaleString()}</span>
             </div>
             <button class="add-btn" onclick='addToCart(${JSON.stringify(item)})'>+</button>
           </div>
         `;
       });
     });
-
     document.getElementById('category-tabs').innerHTML = tabsHtml;
     document.getElementById('menu-list').innerHTML = menuHtml;
   });
@@ -66,7 +61,7 @@ function scrollToCategory(category) {
   document.getElementById('cat-'+category).scrollIntoView({behavior: 'smooth'});
 }
 
-// 3. CART FUNCTION
+// CART FUNCTION
 function addToCart(item) {
   item.restaurantId = restaurantId;
   item.restaurantName = currentRestaurant.name;
