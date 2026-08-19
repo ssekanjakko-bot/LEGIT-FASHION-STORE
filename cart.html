@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart - GoBite</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <header class="navbar restaurant-header">
+    <button class="back-btn" onclick="window.history.back()">←</button>
+    <h1 class="logo">Your Cart</h1>
+    <div></div>
+  </header>
+
+  <section class="cart-section">
+    <div id="cart-empty" style="text-align:center; padding:60px 20px; display:none;">
+      <h3>Your cart is empty</h3>
+      <p>Add some food to get started</p>
+      <button class="btn-primary" onclick="window.location='index.html'">Browse Restaurants</button>
+    </div>
+
+    <div id="cart-content">
+      <h3 id="cart-restaurant-name"></h3>
+      
+      <div id="cart-items-list"></div>
+
+      <div class="bill-section">
+        <h4>Bill Details</h4>
+        <div class="bill-row">
+          <span>Item Total</span>
+          <span>UGX <span id="bill-subtotal">0</span></span>
+        </div>
+        <div class="bill-row">
+          <span>Delivery Fee</span>
+          <span>UGX <span id="bill-delivery">0</span></span>
+        </div>
+        <div class="bill-row total">
+          <span>To Pay</span>
+          <span>UGX <span id="bill-total">0</span></span>
+        </div>
+      </div>
+
+      <button class="btn-primary btn-large" onclick="placeOrder()">Place Order</button>
+    </div>
+  </section>
+
+  <script src="assets/cart.js"></script>
+</body>
+</html>
