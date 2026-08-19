@@ -29,11 +29,29 @@ const restaurantData = {
       "Breakfast": [],
       "Combos": []
     }
+  },
+  bubus: {
+    name: 'Bubus Restaurant',
+    rating: 4.7,
+    time: '30-40 min',
+    fee: 'UGX 4,000',
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800',
+    menu: {
+      "Local Dishes": [
+        { id: 8, name: 'Luwombo Chicken', price: 22000, desc: 'Steamed in banana leaves', image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400' },
+      ],
+      "Fast Food": [
+        { id: 9, name: 'Rolex', price: 5000, desc: 'Chapati + eggs', image: 'https://images.unsplash.com/photo-1627308595181-b5e0a3d1b3b1?w=400' },
+      ],
+      "Chicken": [], "Burgers": [], "Rice & Wraps": [], "Sides": [], "Drinks": [],
+      "Platters": [], "Salads": [], "Desserts": [], "Breakfast": [], "Combos": []
+    }
   }
 };
 
 let cart = JSON.parse(localStorage.getItem('gobite_cart')) || [];
 let currentRestaurant = null;
+let currentRestaurantId = '';
 
 function updateCartBar() {
   const cartBar = document.getElementById('cart-bar');
@@ -45,15 +63,30 @@ function updateCartBar() {
   cartBar.style.display = itemCount > 0? 'flex' : 'none';
 }
 
-function addToCart(item) {
+// FIXED: ENFORCE 1 RESTAURANT PER ORDER
+function addToCart(item, restaurantId, restaurantName) {
+  const cartRestaurantId = localStorage.getItem('gobite_cart_restaurant');
+
+  if(cartRestaurantId && cartRestaurantId!== restaurantId) {
+    const confirmSwitch = confirm(`Your cart has items from another restaurant. Clear cart and add ${item.name} from ${restaurantName}?`);
+    if(confirmSwitch) {
+      cart = [];
+      localStorage.clear();
+    } else {
+      return;
+    }
+  }
+
   const existing = cart.find(c => c.id === item.id);
   if(existing) { existing.qty += 1; }
   else { cart.push({...item, qty: 1}); }
+
+  localStorage.setItem('gobite_cart_restaurant', restaurantId);
+  localStorage.setItem('gobite_cart_restaurant_name', restaurantName);
   localStorage.setItem('gobite_cart', JSON.stringify(cart));
+
   updateCartBar();
 }
-
-function goToCart() { window.location = 'cart.html'; }
 
 function showCategory(categoryName, btn) {
   const menuList = document.getElementById('menu-list');
@@ -75,7 +108,7 @@ function showCategory(categoryName, btn) {
         <p>${item.desc}</p>
         <div class="price">UGX ${item.price.toLocaleString()}</div>
       </div>
-      <button class="add-to-cart-btn" onclick='addToCart(${JSON.stringify(item)})'>
+      <button class="add-to-cart-btn" onclick='addToCart(${JSON.stringify(item)}, "${currentRestaurantId}", "${currentRestaurant.name}")'>
         <span>+</span> Add
       </button>
     </div>
@@ -84,8 +117,8 @@ function showCategory(categoryName, btn) {
 
 window.onload = function() {
   const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-  currentRestaurant = restaurantData[id];
+  currentRestaurantId = params.get('id');
+  currentRestaurant = restaurantData[currentRestaurantId];
   if(!currentRestaurant) return;
 
   document.getElementById('rest-name').innerText = currentRestaurant.name;
@@ -93,6 +126,7 @@ window.onload = function() {
   document.getElementById('rest-rating').innerText = `⭐ ${currentRestaurant.rating}`;
   document.getElementById('rest-time').innerText = currentRestaurant.time;
   document.getElementById('rest-fee').innerText = `${currentRestaurant.fee} delivery`;
+  document.title = `${currentRestaurant.name} - GoBite`;
 
   const tabsContainer = document.getElementById('category-tabs');
   const allCategories = [
