@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partner Portal - GoBite</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+ .partner-wrap { max-width: 700px; margin: 0 auto; padding: 20px; }
+ .admin-section { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+ .form-group { margin-bottom: 16px; }
+ .form-group label { font-weight: 700; display: block; margin-bottom: 6px; font-size: 14px; }
+ .form-group input,.form-group select,.form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; font-family: 'Poppins'; }
+ .preview-img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
+ .preview-logo { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; margin-top: 10px; display: none; }
+ .my-items { display: grid; gap: 12px; margin-top: 20px; }
+ .item-card { background: #f8f8f8; padding: 12px; border-radius: 12px; display: flex; gap: 12px; align-items: center; }
+ .item-card img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+ .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+ .tab-btn { padding: 10px 16px; border: none; background: #eee; border-radius: 8px; font-weight: 600; cursor: pointer; }
+ .tab-btn.active { background: var(--primary); color: white; }
+  </style>
+</head>
+<body style="background:var(--bg);">
+    <header class="navbar">
+      <button class="back-btn" onclick="window.location='index.html'">←</button>
+      <h1 class="logo">Partner Portal</h1>
+    </header>
+
+    <div class="partner-wrap">
+      <!-- LOGIN -->
+      <div id="rest-login" class="admin-section">
+        <h2>Restaurant Login</h2>
+        <p style="color:#888; font-size:13px;">Use your Restaurant Code. Ex: `nandos`</p>
+        <div class="form-group">
+          <label>Restaurant Code</label>
+          <input type="text" id="rest-code" placeholder="nandos, bubus, etc">
+        </div>
+        <div class="form-group">
+          <label>Secret Key</label>
+          <input type="password" id="rest-key" placeholder="partner2026">
+        </div>
+        <button class="btn-primary" onclick="restLogin()">Login</button>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="upload-section" style="display:none;">
+        <h2>Welcome, <span id="rest-name-show"></span></h2>
+
+        <div class="tabs">
+          <button class="tab-btn active" onclick="showTab('profile')">1. Profile</button>
+          <button class="tab-btn" onclick="showTab('menu')">2. Menu</button>
+        </div>
+
+        <!-- TAB 1: PROFILE -->
+        <div id="tab-profile" class="admin-section">
+          <h3>Restaurant Profile - Shows on Index + Restaurant Page</h3>
+          <div class="form-group">
+            <label>Restaurant Name</label>
+            <input type="text" id="profile-name" placeholder="Nandos Wandegeya">
+          </div>
+          <div class="form-group">
+            <label>Cuisine / Tags</label>
+            <input type="text" id="profile-cuisine" placeholder="Chicken, Grilled, Fast Food">
+          </div>
+          <div class="form-group">
+            <label>Delivery Time</label>
+            <input type="text" id="profile-time" placeholder="25-35 min">
+          </div>
+          <div class="form-group">
+            <label>Rating</label>
+            <input type="number" step="0.1" id="profile-rating" placeholder="4.8">
+          </div>
+          <div class="form-group">
+            <label>Cover Image</label>
+            <input type="file" id="profile-cover" accept="image/*" onchange="previewProfileImage(event, 'cover-preview')">
+            <img id="cover-preview" class="preview-img">
+          </div>
+          <div class="form-group">
+            <label>Logo</label>
+            <input type="file" id="profile-logo" accept="image/*" onchange="previewProfileImage(event, 'logo-preview')">
+            <img id="logo-preview" class="preview-logo">
+          </div>
+          <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+        </div>
+
+        <!-- TAB 2: MENU -->
+        <div id="tab-menu" class="admin-section" style="display:none;">
+          <h3>+ Add New Food Item</h3>
+          <div class="form-group">
+            <label>Food Name</label>
+            <input type="text" id="food-name" placeholder="1/4 Chicken">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="food-category">
+              <option>Chicken</option><option>Burgers</option><option>Rice & Wraps</option>
+              <option>Sides</option><option>Drinks</option><option>Platters</option>
+              <option>Salads</option><option>Desserts</option><option>Breakfast</option><option>Combos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Price UGX</label>
+            <input type="number" id="food-price" placeholder="18000">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="food-desc" rows="2" placeholder="Grilled chicken with..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Food Image</label>
+            <input type="file" id="food-image" accept="image/*" onchange="previewImage(event)">
+            <img id="image-preview" class="preview-img">
+          </div>
+          <button class="btn-primary" onclick="addFood()">Save Food Item</button>
+
+          <h3 style="margin-top:30px;">Your Menu Items</h3>
+          <div id="my-menu" class="my-items">No items yet</div>
+        </div>
+
+        <button class="cart-btn" style="background:#e74c3c; margin-top:20px;" onclick="restLogout()">Logout</button>
+      </div>
+    </div>
+
+  <!-- FIREBASE SCRIPTS -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="assets/partner.js"></script>
+</body>
+</html>
