@@ -1,153 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GoBite UG - Order Now</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoBite UG</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-body { background:#FEF9F0; padding-bottom:80px; max-width:450px; margin:auto; }
-.topbar { background:#0B4D2E; color:white; display:flex; justify-content:space-between; align-items:center; padding:12px 16px; position:sticky; top:0; z-index:10; }
-.topbar h1 { font-size:20px; font-weight:700; }
-.topbar h1 span { color:#F9D76B; }
-.banner { height:140px; background: linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600'); background-size:cover; background-position:center; display:flex; flex-direction:column; justify-content:center; padding:20px; color:white; text-align:center; }
-.banner h2 { font-size:22px; font-weight:700; line-height:1.2; }
-.gps-bar { background:white; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; font-size:13px; }
-.gps-bar button { background:#0B4D2E; color:white; border:none; padding:6px 12px; border-radius:20px; font-size:12px; cursor:pointer; }
-.section-title { text-align:center; font-weight:700; margin:15px 0 10px; font-size:16px; }
-.grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 10px; }
-.card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08); border:1px solid #eee; cursor:pointer; }
-.card-cover { height:95px; width:100%; object-fit:cover; background:#eee; }
-.card-name { padding:8px 5px; text-align:center; font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.card-dist { text-align:center; font-size:11px; color:#0B4D2E; font-weight:600; padding-bottom:6px; }
-.quick-title { font-weight:700; margin:18px 0 10px 10px; font-size:14px; }
-.quick-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; padding:0 10px; }
-.quick-card { background:white; border-radius:10px; overflow:hidden; border:1px solid #eee; }
-.quick-card img { width:100%; height:55px; object-fit:cover; }
-.quick-card p { font-size:10px; text-align:center; padding:4px; font-weight:600; }
-#loading { text-align:center; padding:30px; }
+*{box-sizing:border-box;font-family:Arial;margin:0}body{background:#FEF9F0;max-width:500px;margin:auto;padding-bottom:80px}
+.top{background:#0B4D2E;color:#fff;padding:12px 15px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:10}
+.hero{height:160px;background:url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600') center/cover;position:relative;display:flex;align-items:center;justify-content:center}
+.hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.5)} .hero h1{position:relative;color:#fff;text-align:center;z-index:1;font-size:21px}
+.gps{background:#fff;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;font-size:12px;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+.btn-gps{background:#0B4D2E;color:#fff;border:none;padding:6px 12px;border-radius:20px;font-weight:700}
+.card{background:#fff;border-radius:14px;overflow:hidden;margin:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);cursor:pointer}
+.card img{width:100%;height:130px;object-fit:cover;background:#eee} .info{padding:10px} .meta{font-size:11px;color:#666;display:flex;gap:8px}
+.dist{color:#0B4D2E;font-weight:700}
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <h1>GoBite <span>UG</span></h1>
-  <span>🛒</span>
-</div>
-
-<div class="banner">
-  <h2>Order from your<br>favorite restaurants!</h2>
-</div>
-
-<div class="gps-bar">
-  <div><span id="gpsText">📍 Locating you...</span></div>
-  <button onclick="getLocation()">Enable GPS</button>
-</div>
-
-<div class="section-title">Select Restaurant</div>
-<div id="loading">Loading restaurants...</div>
-<div id="restaurantGrid" class="grid"></div>
-
-<div class="quick-title">Quick Bites</div>
-<div id="quickGrid" class="quick-grid"></div>
+<div class="top"><h3>GoBite <span style="color:#FFD700">UG</span></h3><span onclick="location.href='cart.html'">🛒 <b id="cCount">0</b></span></div>
+<div class="hero"><h1>Order from your<br>favorite restaurants!</h1></div>
+<div class="gps"><span id="gpsT">📍 Locating you...</span><button class="btn-gps" onclick="getLoc()">Enable GPS</button></div>
+<div style="padding:10px"><h3 style="text-align:center">Select Restaurant</h3><div id="list">Loading approved...</div></div>
 
 <script type="module">
-import { db } from './firebase.js';
-import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
+const app=initializeApp(firebaseConfig); const db=getFirestore(app);
+let uLat=null,uLng=null; let cart=JSON.parse(localStorage.getItem('gobite_cart')||'[]'); document.getElementById('cCount').innerText=cart.length;
 
-let userLat = null;
-let userLng = null;
-let allRestaurants = [];
-
-getLocation();
-loadRestaurants();
-
-function getLocation(){
-  document.getElementById('gpsText').innerText = '📍 Locating...';
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos => {
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
-      document.getElementById('gpsText').innerText = `📍 Near you (${userLat.toFixed(2)}, ${userLng.toFixed(2)})`;
-      sortByDistance();
-    }, err => {
-      document.getElementById('gpsText').innerText = '📍 GPS off - showing all';
-    });
-  }
-}
-window.getLocation = getLocation;
-
-async function loadRestaurants(){
-  const q = query(collection(db,'restaurants'), where('status','==','approved'));
-  const snap = await getDocs(q);
-  document.getElementById('loading').style.display = 'none';
-  
-  if(snap.empty){
-    document.getElementById('restaurantGrid').innerHTML = '<p style="grid-column:1/3;text-align:center;padding:20px">No restaurants approved yet. Check admin774.html</p>';
-    return;
-  }
-
-  allRestaurants = [];
-  snap.forEach(d=>{
-    const data = d.data();
-    data.id = d.id;
-    allRestaurants.push(data);
+window.getLoc=()=>{ navigator.geolocation.getCurrentPosition(p=>{uLat=p.coords.latitude;uLng=p.coords.longitude;document.getElementById('gpsT').innerText=`📍 Near ${uLat.toFixed(3)},${uLng.toFixed(3)}`;load();},()=>load()); };
+async function load(){
+  const snap=await getDocs(query(collection(db,'restaurants'),where('status','==','approved')));
+  let rests=[]; snap.forEach(d=>rests.push({id:d.id,...d.data()}));
+  rests.forEach(r=>{ r.dist = uLat ? calc(uLat,uLng,r.lat,r.lng) : 9999; }); rests.sort((a,b)=>a.dist-b.dist);
+  const list=document.getElementById('list');
+  if(rests.length==0){ list.innerHTML='<p style="text-align:center;color:#888;padding:20px">No approved restaurants.<br>Admin must approve in admin774.html</p>'; return; }
+  list.innerHTML='';
+  rests.forEach(r=>{
+    const d=document.createElement('div'); d.className='card'; d.onclick=()=>location.href=`restaurant.html?id=${r.id}`;
+    d.innerHTML=`<img src="${r.coverUrl||r.logoUrl||'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'}"><div class="info"><b>${r.name}</b><div class="meta"><span>${r.cuisine||'Restaurant'}</span><span class="dist">${r.dist<9999?r.dist.toFixed(1)+'km away':'View Menu'}</span></div><div style="font-size:11px;color:#999">${r.address||''}</div></div>`;
+    list.appendChild(d);
   });
-
-  renderRestaurants(allRestaurants);
 }
-
-function renderRestaurants(list){
-  const grid = document.getElementById('restaurantGrid');
-  const quick = document.getElementById('quickGrid');
-  grid.innerHTML = '';
-  quick.innerHTML = '';
-
-  // Sort if GPS available
-  let sorted = [...list];
-  if(userLat) sorted.sort((a,b)=> (a.distance||999) - (b.distance||999) );
-
-  sorted.forEach(r=>{
-    const img = r.coverUrl || r.logoUrl || '';
-    if(!img) return; // NO PLACEHOLDER - skip if no image
-    
-    const distText = r.distance ? `${r.distance.toFixed(1)} km away` : '';
-    grid.innerHTML += `
-      <div class="card" onclick="openRestaurant('${r.id}')">
-        <img class="card-cover" src="${img}" onerror="this.style.display='none'">
-        <div class="card-name">${r.name}</div>
-        <div class="card-dist">${distText}</div>
-      </div>
-    `;
-  });
-
-  // Quick Bites = first 4 items of menus
-  // You can load later from menu subcollections if needed
-}
-
-function sortByDistance(){
-  if(userLat==null) return;
-  allRestaurants.forEach(r=>{
-    if(r.lat && r.lng){
-      r.distance = getDistance(userLat, userLng, r.lat, r.lng);
-    } else {
-      r.distance = 999;
-    }
-  });
-  renderRestaurants(allRestaurants);
-}
-
-function getDistance(lat1,lon1,lat2,lon2){
-  const R=6371;
-  const dLat = (lat2-lat1)*Math.PI/180;
-  const dLon = (lon2-lon1)*Math.PI/180;
-  const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
-  return R * 2 * Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-window.openRestaurant = function(id){
-  window.location.href = `restaurant.html?id=${id}`;
-}
+function calc(a,b,c,d){ const R=6371, dLat=(c-a)*Math.PI/180, dLon=(d-b)*Math.PI/180, x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
+getLoc();
 </script>
 </body>
 </html>
