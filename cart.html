@@ -1,51 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Cart - GoBite</title>
-  <link rel="stylesheet" href="assets/style.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart - GoBite UG</title>
+<style>
+*{box-sizing:border-box;font-family:Arial}body{max-width:500px;margin:auto;background:#FEF9F0;padding:0;padding-bottom:100px}
+.top{background:#fff;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.08);position:sticky;top:0;z-index:10}
+.card{background:#fff;padding:12px;border-radius:12px;margin:10px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.item{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
+.item img{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#eee;border:1px solid #eee}
+.qty{display:flex;align-items:center;gap:8px;background:#f5f5f5;border-radius:20px;padding:3px 6px}
+.qbtn{width:28px;height:28px;border-radius:50%;border:1px solid #0B4D2E;background:#fff;color:#0B4D2E;font-weight:800;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+input,textarea{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:10px;font-size:14px}
+.btn{width:100%;padding:14px;background:#0B4D2E;color:#fff;border:none;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer}
+.btn:disabled{background:#ccc}
+.total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+.total-row.grand{font-weight:800;font-size:17px;border-top:2px solid #0B4D2E;margin-top:8px;padding-top:10px}
+.empty{text-align:center;padding:50px 20px;color:#888}
+</style>
 </head>
 <body>
+<div class="top">
+<button onclick="location.href='index.html'" style="border:none;background:#eee;padding:7px 12px;border-radius:8px;cursor:pointer">← Back</button>
+<h4 style="margin-left:10px">My Cart</h4>
+</div>
 
-  <header class="navbar restaurant-header">
-    <button class="back-btn" onclick="window.history.back()">←</button>
-    <h1 class="logo">Your Cart</h1>
-    <div></div>
-  </header>
+<div id="cartBox"></div>
 
-  <section class="cart-section">
-    <div id="cart-empty" style="text-align:center; padding:60px 20px; display:none;">
-      <h3>Your cart is empty</h3>
-      <p>Add some food to get started</p>
-      <button class="btn-primary" onclick="window.location='index.html'">Browse Restaurants</button>
-    </div>
+<div id="detailsBox" class="card" style="display:none">
+<h3>🚚 Delivery Details</h3>
+<p style="font-size:11px;color:#666">Order goes LIVE to <b id="restNameShow" style="color:#0B4D2E"></b> - they see image + qty too</p>
+<input id="cName" placeholder="Your Full Name *">
+<input id="cPhone" type="tel" placeholder="Phone 07... *">
+<textarea id="cAddr" placeholder="Delivery Address *" rows="2"></textarea>
+<textarea id="cNote" placeholder="Note to restaurant (optional)" rows="2"></textarea>
 
-    <div id="cart-content">
-      <h3 id="cart-restaurant-name"></h3>
-      
-      <div id="cart-items-list"></div>
+<div style="background:#f9f9f9;padding:12px;border-radius:10px;margin:12px 0">
+<div class="total-row"><span>Items (<span id="itemsCount">0</span>)</span><span id="subTotal">UGX 0</span></div>
+<div class="total-row"><span>Delivery Fee</span><span>UGX 3,000</span></div>
+<div class="total-row grand"><span>Total to Pay</span><span id="grandTotal" style="color:#0B4D2E">UGX 0</span></div>
+<div style="font-size:10px;color:#888;margin-top:4px">Qty total calculated as: price × quantity per item</div>
+</div>
 
-      <div class="bill-section">
-        <h4>Bill Details</h4>
-        <div class="bill-row">
-          <span>Item Total</span>
-          <span>UGX <span id="bill-subtotal">0</span></span>
-        </div>
-        <div class="bill-row">
-          <span>Delivery Fee</span>
-          <span>UGX <span id="bill-delivery">0</span></span>
-        </div>
-        <div class="bill-row total">
-          <span>To Pay</span>
-          <span>UGX <span id="bill-total">0</span></span>
-        </div>
+<button id="placeBtn" class="btn" onclick="placeOrder()">🛵 Place Order - Cash on Delivery</button>
+<p id="placeStatus" style="font-size:12px;text-align:center;margin-top:10px;line-height:1.4"></p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+let cart=JSON.parse(localStorage.getItem('gobite_cart')||'[]');
+const DELIVERY_FEE=3000;
+
+function render(){
+  const box=document.getElementById('cartBox');
+  const details=document.getElementById('detailsBox');
+  if(cart.length===0){
+    box.innerHTML=`<div class="empty"><div style="font-size:50px">🛒</div><h3>Cart empty</h3><button class="btn" style="width:auto;padding:10px 20px;margin-top:10px" onclick="location.href='index.html'">Browse Restaurants</button></div>`;
+    details.style.display='none'; return;
+  }
+  details.style.display='block';
+  document.getElementById('restNameShow').innerText=cart[0].restName||'';
+  let html=`<div class="card"><h4 style="margin:0 0 8px 0">From: ${cart[0].restName}</h4>`;
+  let sub=0; let totalQty=0;
+  cart.forEach((it,idx)=>{
+    const itemTotal = it.price * it.qty; // CORRECT CALCULATION
+    sub+=itemTotal;
+    totalQty+=it.qty;
+    html+=`<div class="item">
+      <img src="${it.imageUrl||'https://via.placeholder.com/60'}" alt="${it.name}">
+      <div style="flex:1">
+        <b style="font-size:13px">${it.name}</b><br>
+        <small style="color:#666">${it.category||''} • UGX ${it.price.toLocaleString()} each</small><br>
+        <b style="color:#FF6B35;font-size:13px">UGX ${itemTotal.toLocaleString()}</b> <small style="color:#888">(${it.price} × ${it.qty})</small>
       </div>
+      <div style="text-align:right">
+        <div class="qty">
+          <button class="qbtn" onclick="changeQty(${idx},-1)">−</button>
+          <span style="min-width:20px;text-align:center;font-weight:800">${it.qty}</span>
+          <button class="qbtn" onclick="changeQty(${idx},1)">+</button>
+        </div>
+        <button onclick="removeItem(${idx})" style="border:none;background:none;color:#ff4444;font-size:11px;margin-top:6px;cursor:pointer">Remove</button>
+      </div>
+    </div>`;
+  });
+  html+=`</div>`;
+  box.innerHTML=html;
+  document.getElementById('subTotal').innerText='UGX '+sub.toLocaleString();
+  document.getElementById('grandTotal').innerText='UGX '+(sub+DELIVERY_FEE).toLocaleString();
+  document.getElementById('itemsCount').innerText=totalQty;
+  window.subTotal=sub;
+  window.totalQty=totalQty;
+}
 
-      <button class="btn-primary btn-large" onclick="placeOrder()">Place Order</button>
-    </div>
-  </section>
+window.changeQty=(idx,delta)=>{
+  cart[idx].qty+=delta;
+  if(cart[idx].qty<=0) cart.splice(idx,1);
+  save();
+};
+window.removeItem=(idx)=>{ cart.splice(idx,1); save(); };
+function save(){ localStorage.setItem('gobite_cart',JSON.stringify(cart)); render(); }
 
-  <script src="assets/cart.js"></script>
+window.placeOrder=async()=>{
+  const name=document.getElementById('cName').value.trim();
+  const phone=document.getElementById('cPhone').value.trim();
+  const addr=document.getElementById('cAddr').value.trim();
+  const note=document.getElementById('cNote').value.trim();
+  if(!name||!phone||!addr){ alert('Fill Name, Phone, Address *'); return; }
+  if(cart.length===0){ alert('Cart empty'); return; }
+
+  const btn=document.getElementById('placeBtn');
+  const status=document.getElementById('placeStatus');
+  btn.disabled=true; btn.innerText='⏳ Sending order with images...';
+  status.innerText='Sending order with images + qty total to restaurant...';
+
+  try{
+    const orderData={
+      restId: cart[0].restId,
+      restName: cart[0].restName,
+      items: cart, // NOW INCLUDES imageUrl + qty + price
+      subtotal: subTotal,
+      totalQty: totalQty,
+      deliveryFee: DELIVERY_FEE,
+      total: subTotal + DELIVERY_FEE,
+      customerName: name,
+      customerPhone: phone,
+      customerAddress: addr,
+      note: note,
+      status: 'new',
+      paymentMethod: 'Cash on Delivery',
+      orderNumber: 'GB-'+Date.now().toString().slice(-6),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    await addDoc(collection(db,'orders'), orderData);
+    status.innerHTML=`✅ <b>Order Sent!</b><br>Order #${orderData.orderNumber}<br>${totalQty} items, Total UGX ${(orderData.total).toLocaleString()}<br>Restaurant sees your food images + qty<br>Redirecting...`;
+    btn.innerText='✅ Order Placed!';
+    cart=[]; localStorage.removeItem('gobite_cart');
+    setTimeout(()=>location.href='index.html',3000);
+  }catch(e){
+    status.innerHTML='<span style="color:red">Error: '+e.message+'</span>';
+    btn.disabled=false; btn.innerText='🛵 Place Order';
+  }
+};
+
+render();
+</script>
 </body>
 </html>
