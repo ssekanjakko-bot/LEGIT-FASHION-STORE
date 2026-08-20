@@ -1,103 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GoBite Partner - FIXED</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoBite Partner</title>
 <style>
-*{box-sizing:border-box;font-family:Arial}body{background:#FEF9F0;margin:0;max-width:500px;margin:auto}
-.topbar{background:#0B4D2E;color:white;padding:15px;text-align:center;font-weight:700}
-.container{background:white;margin:15px;padding:20px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,.08)}
-input,textarea{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:10px}
-.btn{width:100%;padding:13px;border:none;border-radius:10px;font-weight:700;cursor:pointer;margin-top:10px}
-.btn-orange{background:#FF6B35;color:white}.btn-green{background:#0B4D2E;color:white}.btn-grey{background:#eee;width:auto;padding:8px 15px}
-.hidden{display:none}#authMsg{background:#ffe0e0;padding:10px;border-radius:8px;color:#b00;font-size:13px;margin-top:10px;display:none}
+*{box-sizing:border-box;font-family:Arial, sans-serif}
+body{background:#FEF9F0;margin:0 auto;max-width:480px;padding-bottom:40px}
+.top{background:#0B4D2E;color:#fff;padding:14px;text-align:center;font-weight:700;font-size:18px}
+.box{background:#fff;margin:12px;padding:18px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+input,textarea,select{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:10px;font-size:14px}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-weight:700;margin-top:10px;cursor:pointer;font-size:14px}
+.orange{background:#FF6B35;color:#fff}.green{background:#0B4D2E;color:#fff}.grey{background:#eee;color:#333}
+.hidden{display:none}
+.err{background:#ffdddd;color:#900;padding:10px;border-radius:8px;margin-top:10px;font-size:13px;display:none}
+.ok{background:#d4edda;color:#155724;padding:10px;border-radius:8px;margin-top:10px;font-size:13px;display:none}
+label{font-size:12px;font-weight:700;color:#444;margin-top:8px;display:block}
 </style>
 </head>
 <body>
-<div class="topbar">GoBite UG - Partner Portal [DEBUG]</div>
-<div class="container">
-<h3 id="title">Login or Create Account</h3>
-<p id="userEmail" style="font-size:12px"></p>
-<button id="logoutBtn" class="btn-grey hidden" onclick="logout()">Logout</button>
+<div class="top">GoBite UG - Partner Portal</div>
+<div class="box">
 
-<div id="authDiv">
-<input type="email" id="email" placeholder="Email" value="">
-<input type="password" id="password" placeholder="Password min 6 chars">
-<button class="btn btn-orange" onclick="signup()">Sign Up New Account</button>
-<button class="btn btn-green" onclick="login()">Login Existing Account</button>
-<div id="authMsg"></div>
-<p style="font-size:11px;color:#666;margin-top:10px">Open console: On iPhone Safari tap AA > Web Inspector to see error. Or tell me what shows in red box.</p>
+<h3 id="title">Create Partner Account</h3>
+<p id="uEmail" style="font-size:12px;color:#666"></p>
+<button id="logout" class="grey hidden" style="width:auto;float:right;margin-top:-35px;padding:6px 12px" onclick="doLogout()">Logout</button>
+
+<!-- AUTH -->
+<div id="authBox">
+<input id="email" type="email" placeholder="Email - any email works">
+<input id="pass" type="password" placeholder="Password - min 6 characters">
+<button class="btn orange" onclick="doSignup()">SIGN UP - NEW PARTNER</button>
+<button class="btn green" onclick="doLogin()">LOGIN - EXISTING PARTNER</button>
+<div id="errBox" class="err"></div>
+<div id="okBox" class="ok"></div>
+<p style="font-size:11px;color:#888;margin-top:10px;text-align:center">Any person can sign up with any email. After signup you will register restaurant.</p>
 </div>
 
-<div id="profileDiv" class="hidden">
-<h4>Register Restaurant</h4>
-<input id="rName" placeholder="Restaurant Name *"><input id="rPhone" placeholder="Phone *"><input id="rLat" placeholder="Lat"><input id="rLng" placeholder="Lng">
-<button class="btn btn-grey" onclick="useLoc()" style="width:100%">📍 Use My Location</button>
-<input type="file" id="rLogo"><input type="file" id="rCover">
-<button class="btn btn-orange" onclick="createRest()">Submit for Approval</button>
-<p id="pMsg"></p>
+<!-- REGISTER RESTAURANT -->
+<div id="profileBox" class="hidden">
+<h4>Register Your Restaurant</h4>
+<input id="rName" placeholder="Restaurant Name * e.g Mama's Kitchen">
+<input id="rPhone" placeholder="Phone Number * e.g 0700000000">
+<input id="rCuisine" placeholder="Cuisine e.g Chicken, Fast Food, Local">
+<textarea id="rAddress" placeholder="Address e.g Kampala, Wandegeya"></textarea>
+<div style="display:flex;gap:6px">
+<input id="rLat" placeholder="Latitude" readonly>
+<input id="rLng" placeholder="Longitude" readonly>
+</div>
+<button class="btn grey" onclick="getLoc()">📍 Use My Current Location (Required)</button>
+<label>Restaurant Logo</label>
+<input type="file" id="rLogo" accept="image/*">
+<label>Cover Image - This shows to customers on homepage</label>
+<input type="file" id="rCover" accept="image/*">
+<button class="btn orange" onclick="createRestaurant()">Submit For Admin Approval</button>
+<div id="pErr" class="err"></div>
+<div id="pOk" class="ok"></div>
 </div>
 
-<div id="pendingDiv" class="hidden"><h3>⏳ Pending Approval - Check admin774.html</h3><p id="pName"></p></div>
-<div id="menuDiv" class="hidden"><h3>✅ Approved - <span id="aName"></span></h3><input id="iName" placeholder="Food"><input id="iPrice" type="number" placeholder="Price"><button class="btn btn-green" onclick="addItem()">Upload</button><div id="list"></div></div>
+<!-- PENDING -->
+<div id="pendingBox" class="hidden">
+<h3>⏳ Pending Approval</h3>
+<p>Your restaurant <b id="pName"></b> is waiting for approval.</p>
+<p>Status: <b id="pStatus"></b></p>
+<p style="font-size:12px;color:#666">Admin will approve you in admin774.html. After approval refresh this page to upload menu.</p>
+</div>
+
+<!-- MENU UPLOAD -->
+<div id="menuBox" class="hidden">
+<h3>✅ <span id="aName"></span></h3>
+<p style="font-size:13px">Upload your foods - they will show to customers near you</p>
+<input id="iName" placeholder="Food Name e.g Chicken Luwombo">
+<input id="iPrice" type="number" placeholder="Price UGX e.g 15000">
+<input type="file" id="iImage" accept="image/*">
+<button class="btn green" onclick="uploadItem()">Upload Product</button>
+<div id="mList" style="margin-top:15px"></div>
+</div>
+
 </div>
 
 <script type="module">
-import { db, storage } from './firebase.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-import { doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
-const auth = getAuth();
+const firebaseConfig = {
+  apiKey: "AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",
+  authDomain: "gobite-ug.firebaseapp.com",
+  projectId: "gobite-ug",
+  storageBucket: "gobite-ug.firebasestorage.app",
+  messagingSenderId: "479330891516",
+  appId: "1:479330891516:web:dff4620fc3344a45b3c979",
+  measurementId: "G-90RHYD791R"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
 let curUser=null, curId=null;
-const msgBox = document.getElementById('authMsg');
-function showErr(m){ msgBox.style.display='block'; msgBox.innerText='❌ ERROR: '+m; alert('ERROR: '+m); console.error(m); }
 
-onAuthStateChanged(auth, async u=>{
-  if(u){
-    curUser=u; document.getElementById('authDiv').classList.add('hidden'); document.getElementById('logoutBtn').classList.remove('hidden');
-    document.getElementById('userEmail').innerText=u.email; document.getElementById('title').innerText='Dashboard';
-    const snap=await getDoc(doc(db,'restaurants',u.uid));
-    if(!snap.exists()){ document.getElementById('profileDiv').classList.remove('hidden'); }
-    else{
-      const d=snap.data(); curId=u.uid;
-      if(d.status!=='approved'){ document.getElementById('pendingDiv').classList.remove('hidden'); document.getElementById('pName').innerText=d.name+' status:'+d.status; }
-      else{ document.getElementById('menuDiv').classList.remove('hidden'); document.getElementById('aName').innerText=d.name; loadMenu(); }
-    }
+function showErr(id,msg){ const el=document.getElementById(id); el.style.display='block'; el.className='err'; el.innerText=msg; }
+function showOk(id,msg){ const el=document.getElementById(id); el.style.display='block'; el.className='ok'; el.innerText=msg; }
+
+onAuthStateChanged(auth, async user=>{
+  if(user){
+    curUser=user;
+    document.getElementById('authBox').classList.add('hidden');
+    document.getElementById('logout').classList.remove('hidden');
+    document.getElementById('uEmail').innerText=user.email;
+    document.getElementById('title').innerText='Dashboard';
+    try{
+      const snap=await getDoc(doc(db,'restaurants',user.uid));
+      if(!snap.exists()){
+        document.getElementById('profileBox').classList.remove('hidden');
+      }else{
+        const d=snap.data(); curId=user.uid;
+        if(d.status!=='approved'){
+          document.getElementById('pendingBox').classList.remove('hidden');
+          document.getElementById('pName').innerText=d.name;
+          document.getElementById('pStatus').innerText=d.status;
+        }else{
+          document.getElementById('menuBox').classList.remove('hidden');
+          document.getElementById('aName').innerText=d.name;
+          loadMenu();
+        }
+      }
+    }catch(e){ showErr('errBox',e.message); }
+  }else{
+    document.getElementById('authBox').classList.remove('hidden');
+    document.getElementById('profileBox').classList.add('hidden');
+    document.getElementById('pendingBox').classList.add('hidden');
+    document.getElementById('menuBox').classList.add('hidden');
+    document.getElementById('logout').classList.add('hidden');
   }
 });
 
-window.signup = async()=>{
-  const e=document.getElementById('email').value.trim(); const p=document.getElementById('password').value.trim();
-  msgBox.style.display='none';
-  if(p.length<6) return showErr('Password must be at least 6 characters');
-  try{ console.log('Trying signup',e); const r=await createUserWithEmailAndPassword(auth,e,p); console.log('Signup OK',r.user.uid); }
-  catch(err){ showErr(err.code+' : '+err.message); }
-}
-window.login = async()=>{
-  const e=document.getElementById('email').value.trim(); const p=document.getElementById('password').value.trim();
-  msgBox.style.display='none';
-  try{ await signInWithEmailAndPassword(auth,e,p); }
-  catch(err){ showErr(err.code+' : '+err.message); }
-}
-window.logout = async()=>{ await signOut(auth); location.reload(); }
-window.useLoc = ()=>{ navigator.geolocation.getCurrentPosition(pos=>{ document.getElementById('rLat').value=pos.coords.latitude; document.getElementById('rLng').value=pos.coords.longitude; }, ()=>showErr('Enable GPS location')); }
-
-window.createRest = async()=>{
+window.doSignup = async()=>{
+  const e=document.getElementById('email').value.trim();
+  const p=document.getElementById('pass').value.trim();
+  document.getElementById('errBox').style.display='none';
+  document.getElementById('okBox').style.display='none';
+  if(!e||!p){ showErr('errBox','Enter email and password'); return; }
+  if(p.length<6){ showErr('errBox','Password must be 6+ characters'); return; }
+  showOk('okBox','Creating account for '+e+'...');
   try{
-    const name=document.getElementById('rName').value; const phone=document.getElementById('rPhone').value;
-    const lat=document.getElementById('rLat').value; const lng=document.getElementById('rLng').value;
-    if(!name||!phone) return alert('Name & Phone needed');
-    if(!lat) return alert('Click Use My Location');
+    await createUserWithEmailAndPassword(auth,e,p);
+    showOk('okBox','Account created! Now register restaurant');
+  }catch(err){
+    if(err.code==='auth/email-already-in-use'){ showErr('errBox','This email already exists. Click LOGIN button instead.'); }
+    else if(err.code==='auth/unauthorized-domain'){ showErr('errBox','Domain not authorized. Add '+window.location.hostname+' in Firebase > Auth > Settings > Authorized domains'); }
+    else{ showErr('errBox',err.code+': '+err.message); }
+  }
+};
+
+window.doLogin = async()=>{
+  const e=document.getElementById('email').value.trim();
+  const p=document.getElementById('pass').value.trim();
+  document.getElementById('errBox').style.display='none';
+  document.getElementById('okBox').style.display='none';
+  showOk('okBox','Logging in...');
+  try{ await signInWithEmailAndPassword(auth,e,p); }
+  catch(err){ showErr('errBox',err.code+': '+err.message); document.getElementById('okBox').style.display='none'; }
+};
+
+window.doLogout = async()=>{ await signOut(auth); location.reload(); };
+
+window.getLoc = ()=>{
+  if(!navigator.geolocation){ showErr('pErr','GPS not supported'); return; }
+  showOk('pOk','Getting location...');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById('rLat').value=pos.coords.latitude;
+    document.getElementById('rLng').value=pos.coords.longitude;
+    showOk('pOk','Location saved: '+pos.coords.latitude.toFixed(5)+', '+pos.coords.longitude.toFixed(5));
+  },()=>{ showErr('pErr','Enable GPS and allow location permission'); });
+};
+
+window.createRestaurant = async()=>{
+  const name=document.getElementById('rName').value.trim();
+  const phone=document.getElementById('rPhone').value.trim();
+  const lat=document.getElementById('rLat').value.trim();
+  const lng=document.getElementById('rLng').value.trim();
+  if(!name||!phone){ showErr('pErr','Restaurant Name and Phone required'); return; }
+  if(!lat||!lng){ showErr('pErr','Click Use My Current Location - GPS required for customers near you'); return; }
+  showOk('pOk','Uploading... please wait');
+  try{
     let logoUrl='', coverUrl='';
-    const lf=document.getElementById('rLogo').files[0]; if(lf){ const r=ref(storage,`restaurants/${curUser.uid}/logo.jpg`); await uploadBytes(r,lf); logoUrl=await getDownloadURL(r); }
-    const cf=document.getElementById('rCover').files[0]; if(cf){ const r=ref(storage,`restaurants/${curUser.uid}/cover.jpg`); await uploadBytes(r,cf); coverUrl=await getDownloadURL(r); }
-    await setDoc(doc(db,'restaurants',curUser.uid),{name,phone,lat:Number(lat),lng:Number(lng),logoUrl,coverUrl,status:'pending',ownerId:curUser.uid,email:curUser.email,createdAt:new Date()});
-    alert('Submitted!'); location.reload();
-  }catch(e){ showErr(e.message); }
+    const logoFile=document.getElementById('rLogo').files[0];
+    if(logoFile){ const r=ref(storage,`restaurants/${curUser.uid}/logo.jpg`); await uploadBytes(r,logoFile); logoUrl=await getDownloadURL(r); }
+    const coverFile=document.getElementById('rCover').files[0];
+    if(coverFile){ const r=ref(storage,`restaurants/${curUser.uid}/cover.jpg`); await uploadBytes(r,coverFile); coverUrl=await getDownloadURL(r); }
+    await setDoc(doc(db,'restaurants',curUser.uid),{
+      name, phone,
+      cuisine: document.getElementById('rCuisine').value.trim(),
+      address: document.getElementById('rAddress').value.trim(),
+      lat: Number(lat), lng: Number(lng),
+      logoUrl, coverUrl,
+      ownerId: curUser.uid,
+      ownerEmail: curUser.email,
+      status: 'pending',
+      createdAt: new Date()
+    });
+    alert('Submitted! Admin will approve in admin774.html');
+    location.reload();
+  }catch(e){ showErr('pErr','Failed: '+e.message); }
+};
+
+window.uploadItem = async()=>{
+  const name=document.getElementById('iName').value.trim();
+  const price=document.getElementById('iPrice').value.trim();
+  if(!name||!price){ alert('Enter name & price'); return; }
+  try{
+    let imageUrl='';
+    const file=document.getElementById('iImage').files[0];
+    if(file){ const r=ref(storage,`restaurants/${curId}/menu/${Date.now()}.jpg`); await uploadBytes(r,file); imageUrl=await getDownloadURL(r); }
+    await addDoc(collection(db,'restaurants',curId,'menu'),{ name, price: Number(price), imageUrl, createdAt: new Date() });
+    document.getElementById('iName').value=''; document.getElementById('iPrice').value='';
+    alert('Product uploaded'); loadMenu();
+  }catch(e){ alert('Upload failed: '+e.message); }
+};
+
+async function loadMenu(){
+  try{
+    const snap=await getDocs(collection(db,'restaurants',curId,'menu'));
+    const list=document.getElementById('mList');
+    list.innerHTML='<h4>Your Products</h4>';
+    snap.forEach(d=>{ list.innerHTML+=`<div style="border:1px solid #eee;padding:10px;margin:6px 0;border-radius:10px;display:flex;justify-content:space-between"><span><b>${d.data().name}</b><br><small>UGX ${d.data().price}</small></span></div>`; });
+  }catch(e){ console.log(e); }
 }
-window.addItem = async()=>{ try{ const n=document.getElementById('iName').value; const pr=document.getElementById('iPrice').value; await addDoc(collection(db,'restaurants',curId,'menu'),{name:n,price:Number(pr),createdAt:new Date()}); alert('Added'); loadMenu(); }catch(e){showErr(e.message)} }
-async function loadMenu(){ const s=await getDocs(collection(db,'restaurants',curId,'menu')); const l=document.getElementById('list'); l.innerHTML=''; s.forEach(d=>{l.innerHTML+=`<div>${d.data().name} - ${d.data().price}</div>`}) }
 </script>
 </body>
 </html>
