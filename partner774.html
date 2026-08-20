@@ -169,13 +169,29 @@ window.delProd=async(id)=>{ if(!confirm('Delete?'))return; await deleteDoc(doc(d
 
 function listenOrders(){
   if(unsubOrders) unsubOrders();
-  const q=query(collection(db,'orders'), where('restId','==',curUser.uid), orderBy('createdAt','desc'));
+  // FIXED: No orderBy to avoid index error - we sort in JS
+  const q = query(collection(db,'orders'), where('restId','==',curUser.uid));
   unsubOrders=onSnapshot(q, (snap)=>{
     const hadNew = snap.docChanges().some(c=>c.type==='added' && c.doc.data().status==='new');
-    allOrders=[]; snap.forEach(d=>allOrders.push({id:d.id,...d.data()}));
+    allOrders=[];
+    snap.forEach(d=>allOrders.push({id:d.id,...d.data()}));
+    // sort newest first in phone
+    allOrders.sort((a,b)=>{
+      const at=a.createdAt?.toMillis?.()||0;
+      const bt=b.createdAt?.toMillis?.()||0;
+      return bt-at;
+    });
     oCount.innerText=allOrders.filter(o=>o.status==='new').length;
-    if(hadNew){ document.getElementById('ding').play().catch(()=>{}); if(Notification && Notification.permission==='granted') new Notification('New GoBite Order! - '+allOrders[0]?.customerName); }
+    if(hadNew){
+      document.getElementById('ding').play().catch(()=>{});
+      if(Notification && Notification.permission==='granted') new Notification('New GoBite Order! - '+allOrders[0]?.customerName);
+      // vibrate if mobile
+      if(navigator.vibrate) navigator.vibrate([200,100,200]);
+    }
     renderOrders();
+  }, (err)=>{
+    console.log("Orders listen error:", err);
+    ordersList.innerHTML=`<p style="color:red;font-size:12px">Error listening: ${err.message}<br>Check Firestore Rules for orders</p>`;
   });
 }
 window.filterOrders=(f)=>{ orderFilter=f; fNew.classList.remove('active'); fAccepted.classList.remove('active'); fAll.classList.remove('active'); document.getElementById('f'+f.charAt(0).toUpperCase()+f.slice(1)).classList.add('active'); renderOrders(); };
