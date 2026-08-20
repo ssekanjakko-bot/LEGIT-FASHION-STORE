@@ -1,28 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Restaurant - GoBite</title>
-  <link rel="stylesheet" href="assets/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant Menu</title>
+<style>
+*{box-sizing:border-box;font-family:Arial;margin:0}body{background:#FEF9F0;max-width:500px;margin:auto;padding-bottom:80px}
+.top{background:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.08);position:sticky;top:0;z-index:10}
+.cover{width:100%;height:180px;object-fit:cover;background:#eee}
+.info{padding:12px;background:#fff;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.food{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.food img{width:100%;height:110px;object-fit:cover;background:#eee} .finfo{padding:8px} .price{color:#FF6B35;font-weight:700}
+.btn{width:100%;background:#0B4D2E;color:#fff;border:none;padding:7px;border-radius:8px;margin-top:5px;cursor:pointer}
+.cart{position:fixed;bottom:0;left:0;right:0;max-width:500px;margin:auto;background:#0B4D2E;color:#fff;padding:12px;display:flex;justify-content:space-between;transform:translateY(100%);transition:.3s}
+.cart.show{transform:translateY(0)}
+</style>
 </head>
 <body>
-    <header class="navbar">
-      <button class="back-btn" onclick="history.back()">←</button>
-      <h1 class="logo">GoBite</h1>
-      <button class="cart-btn" onclick="window.location='cart.html'">Cart <span id="cart-count">0</span></button>
-    </header>
+<div class="top"><button onclick="history.back()" style="border:none;background:#eee;padding:6px 10px;border-radius:8px">← Back</button><h4 id="rName">Loading...</h4></div>
+<img id="rCover" class="cover">
+<div class="info"><h3 id="rName2"></h3><p id="rMeta" style="font-size:12px;color:#666"></p></div>
+<h4 style="padding:10px">Quick Bites</h4>
+<div id="menu" class="grid">Loading menu...</div>
+<div id="cartBar" class="cart"><span id="cartInfo"></span><button onclick="location.href='cart.html'" style="background:#FF6B35;border:none;color:#fff;padding:8px 12px;border-radius:8px">View Cart</button></div>
 
-    <div class="restaurant-header" id="restaurant-header">Loading...</div>
-    <div class="category-tabs" id="category-tabs"></div>
-    <div class="menu-list" id="menu-list"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
+const app=initializeApp(firebaseConfig); const db=getFirestore(app);
+const id=new URLSearchParams(location.search).get('id');
+let cart=JSON.parse(localStorage.getItem('gobite_cart')||'[]'); let restData=null;
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
-    <script src="lib/firebase.js"></script>
-    <script src="assets/restaurant.js"></script>
+async function init(){
+  if(!id){ document.getElementById('menu').innerText='No restaurant id'; return; }
+  const snap=await getDoc(doc(db,'restaurants',id));
+  if(!snap.exists()){ document.getElementById('menu').innerText='Restaurant not found or not approved'; return; }
+  restData={id:snap.id,...snap.data()};
+  document.getElementById('rName').innerText=restData.name;
+  document.getElementById('rName2').innerText=restData.name;
+  document.getElementById('rCover').src=restData.coverUrl||restData.logoUrl||'';
+  document.getElementById('rMeta').innerText=`${restData.cuisine||''} • ${restData.address||''} • ${restData.phone||''}`;
+  loadMenu(); updateCart();
+}
+async function loadMenu(){
+  const snap=await getDocs(collection(db,'restaurants',id,'menu'));
+  const grid=document.getElementById('menu');
+  if(snap.empty){ grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:#888">No foods posted yet</p>'; return; }
+  grid.innerHTML='';
+  snap.forEach(d=>{
+    const m=d.data();
+    const div=document.createElement('div'); div.className='food';
+    div.innerHTML=`<img src="${m.imageUrl||'https://via.placeholder.com/200?text=Food'}"><div class="finfo"><b style="font-size:13px">${m.name}</b><br><span class="price">UGX ${m.price}</span><button class="btn" onclick="add('${d.id}','${m.name.replace(/'/g,"")}','${m.price}')">Add to Cart</button></div>`;
+    grid.appendChild(div);
+  });
+}
+window.add=(itemId,name,price)=>{
+  cart.push({restId:id, restName:restData.name, itemId, name, price:Number(price), qty:1});
+  localStorage.setItem('gobite_cart',JSON.stringify(cart)); updateCart(); alert(name+' added');
+};
+function updateCart(){
+  document.getElementById('cartBar').className=cart.length?'cart show':'cart';
+  document.getElementById('cartInfo').innerText=`${cart.length} items - UGX ${cart.reduce((s,i)=>s+i.price,0)}`;
+}
+init();
+</script>
 </body>
 </html>
