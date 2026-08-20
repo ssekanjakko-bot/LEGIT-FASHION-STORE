@@ -3,63 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Partner Portal - GoBite UG</title>
+<title>GoBite Partner Portal</title>
 <style>
-body{font-family:Arial;background:#f5f5f5;margin:0;padding:20px}
-.container{max-width:700px;margin:auto;background:white;padding:20px;border-radius:12px}
-input,select,textarea{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px}
-.btn{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;margin-top:10px}
+*{box-sizing:border-box;font-family:'Segoe UI',Arial}
+body{background:#FEF9F0;margin:0;padding:0;max-width:500px;margin:auto}
+.topbar{background:#0B4D2E;color:white;padding:15px;text-align:center;font-weight:700;font-size:18px}
+.container{background:white;margin:15px;padding:20px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.08)}
+input,textarea,select{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:10px;font-size:14px}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-weight:700;cursor:pointer;margin-top:10px;font-size:14px}
 .btn-orange{background:#FF6B35;color:white}
-.btn-green{background:#28a745;color:white}
-.btn-logout{background:#6c757d;color:white;width:auto}
+.btn-green{background:#0B4D2E;color:white}
+.btn-grey{background:#eee;color:#333;width:auto;padding:8px 15px;font-size:12px}
+.btn-logout{background:#dc3545;color:white;padding:8px 15px;width:auto;float:right;margin-top:-35px}
 .hidden{display:none}
-.card{border:1px solid #ddd;padding:15px;border-radius:10px;margin-bottom:10px}
+.label{font-size:13px;font-weight:600;margin-top:10px;display:block}
+.card{border:1px solid #eee;padding:10px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.status-pending{background:#FFF3CD;padding:15px;border-radius:10px;text-align:center;border:1px solid #FFC107}
+.status-approved{background:#D1E7DD;padding:15px;border-radius:10px;text-align:center;border:1px solid #28a745}
+small{color:#666}
 </style>
 </head>
 <body>
+
+<div class="topbar">GoBite UG - Partner Portal</div>
+
 <div class="container">
 
-  <h2 id="headerTitle">🍔 GoBite Partner Login</h2>
-  <button id="logoutBtn" class="btn-logout hidden" onclick="logout()">Logout</button>
+  <!-- HEADER -->
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h3 id="headerTitle" style="margin:0">Welcome Partner</h3>
+    <button id="logoutBtn" class="btn-grey hidden" onclick="logout()">Logout</button>
+  </div>
+  <p id="userEmail" style="font-size:12px;color:#666"></p>
 
-  <!-- 1. LOGIN / SIGNUP -->
+  <!-- 1. AUTH -->
   <div id="authDiv">
+    <h4>Login or Create Account</h4>
     <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button class="btn btn-orange" onclick="signup()">Sign Up</button>
+    <input type="password" id="password" placeholder="Password (min 6 chars)">
+    <button class="btn btn-orange" onclick="signup()">Sign Up New Account</button>
     <button class="btn btn-green" onclick="login()">Login</button>
-    <p id="authMsg"></p>
+    <p id="authMsg" style="color:red;font-size:13px;text-align:center"></p>
   </div>
 
   <!-- 2. CREATE RESTAURANT PROFILE -->
   <div id="profileDiv" class="hidden">
-    <h3>Create Your Restaurant Profile</h3>
-    <input type="text" id="rName" placeholder="Restaurant Name">
-    <input type="text" id="rCuisine" placeholder="Cuisine e.g Fast Food">
-    <input type="text" id="rPhone" placeholder="Phone Number">
-    <textarea id="rAddress" placeholder="Address"></textarea>
-    <label>Logo</label><input type="file" id="rLogo">
-    <label>Cover Image</label><input type="file" id="rCover">
-    <button class="btn btn-orange" onclick="createRestaurant()">Submit for Approval</button>
-    <p id="profileMsg"></p>
+    <h4>📋 Register Your Restaurant</h4>
+    <p><small>Fill this first - Admin must approve before you can upload products</small></p>
+
+    <label class="label">Restaurant Name *</label>
+    <input type="text" id="rName" placeholder="e.g Sanel UG">
+
+    <label class="label">Cuisine Type</label>
+    <input type="text" id="rCuisine" placeholder="e.g Fast Food, Local, Chicken">
+
+    <label class="label">Phone Number *</label>
+    <input type="text" id="rPhone" placeholder="e.g 0700xxxxxx">
+
+    <label class="label">Full Address</label>
+    <textarea id="rAddress" placeholder="Area, Street..."></textarea>
+
+    <label class="label">Restaurant Location (For GPS nearby) *</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="rLat" placeholder="Latitude" readonly>
+      <input type="text" id="rLng" placeholder="Longitude" readonly>
+    </div>
+    <button class="btn btn-grey" onclick="useMyLocation()" style="width:100%">📍 Use My Current Location</button>
+    <small>Click to auto-fill your location. Customers near you will see you first.</small>
+
+    <label class="label">Logo Image</label>
+    <input type="file" id="rLogo" accept="image/*">
+
+    <label class="label">Cover Image (This shows in customer app like your screenshot)</label>
+    <input type="file" id="rCover" accept="image/*">
+
+    <button class="btn btn-orange" onclick="createRestaurant()">Submit To Admin For Approval</button>
+    <p id="profileMsg" style="text-align:center;font-size:13px"></p>
   </div>
 
-  <!-- 3. PENDING MESSAGE -->
+  <!-- 3. PENDING -->
   <div id="pendingDiv" class="hidden">
-    <h3>⏳ Waiting for Admin Approval</h3>
-    <p>Your restaurant <b id="pendingName"></b> was submitted. Admin will review it soon.</p>
-    <p>You will be able to upload products after approval.</p>
+    <div class="status-pending">
+      <h3>⏳ Pending Approval</h3>
+      <p>Your restaurant <b id="pendingName"></b> was submitted successfully.</p>
+      <p>Admin will review it in <b>admin774.html</b>. After approval you can upload menu.</p>
+      <p><small>Status: <span id="pendingStatus"></span></small></p>
+    </div>
   </div>
 
-  <!-- 4. MENU UPLOAD - AFTER APPROVAL -->
+  <!-- 4. APPROVED - UPLOAD MENU -->
   <div id="menuDiv" class="hidden">
-    <h3>✅ <span id="approvedName"></span> - Upload Menu</h3>
-    <input type="text" id="itemName" placeholder="Food Name">
-    <input type="number" id="itemPrice" placeholder="Price UGX">
-    <input type="file" id="itemImage">
+    <div class="status-approved">
+      <h3>✅ Approved: <span id="approvedName"></span></h3>
+      <p>Now you can upload products</p>
+    </div>
+
+    <h4 style="margin-top:20px">➕ Add New Product</h4>
+    <input type="text" id="itemName" placeholder="Food Name e.g Rolex & Chips">
+    <input type="number" id="itemPrice" placeholder="Price UGX e.g 5000">
+    <input type="text" id="itemDesc" placeholder="Description (optional)">
+    <input type="file" id="itemImage" accept="image/*">
     <button class="btn btn-green" onclick="uploadItem()">Upload Product</button>
-    <h4>Your Products</h4>
-    <div id="itemList"></div>
+
+    <h4 style="margin-top:25px">Your Menu</h4>
+    <div id="itemList">Loading...</div>
   </div>
 
 </div>
@@ -67,19 +114,21 @@ input,select,textarea{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc
 <script type="module">
 import { db, storage } from './firebase.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-import { doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { doc, setDoc, getDoc, collection, addDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
 const auth = getAuth();
 let currentUser = null;
 let currentRestId = null;
 
+// AUTH STATE
 onAuthStateChanged(auth, async (user)=>{
   if(user){
     currentUser = user;
     document.getElementById('authDiv').classList.add('hidden');
     document.getElementById('logoutBtn').classList.remove('hidden');
-    document.getElementById('headerTitle').innerText = `Welcome ${user.email}`;
+    document.getElementById('userEmail').innerText = user.email;
+    document.getElementById('headerTitle').innerText = 'Dashboard';
     checkRestaurantProfile(user.uid);
   } else {
     document.getElementById('authDiv').classList.remove('hidden');
@@ -87,36 +136,48 @@ onAuthStateChanged(auth, async (user)=>{
     document.getElementById('pendingDiv').classList.add('hidden');
     document.getElementById('menuDiv').classList.add('hidden');
     document.getElementById('logoutBtn').classList.add('hidden');
+    document.getElementById('headerTitle').innerText = 'Welcome Partner';
   }
 });
 
 window.signup = async()=>{
-  const email = document.getElementById('email').value;
-  const pass = document.getElementById('password').value;
-  try{ await createUserWithEmailAndPassword(auth,email,pass); }
-  catch(e){ document.getElementById('authMsg').innerText = e.message; }
+  const e=document.getElementById('email').value.trim();
+  const p=document.getElementById('password').value.trim();
+  if(!e||!p) return alert('Fill email & password');
+  try{ await createUserWithEmailAndPassword(auth,e,p); }
+  catch(err){ document.getElementById('authMsg').innerText=err.message; }
 }
 window.login = async()=>{
-  const email = document.getElementById('email').value;
-  const pass = document.getElementById('password').value;
-  try{ await signInWithEmailAndPassword(auth,email,pass); }
-  catch(e){ document.getElementById('authMsg').innerText = e.message; }
+  const e=document.getElementById('email').value.trim();
+  const p=document.getElementById('password').value.trim();
+  try{ await signInWithEmailAndPassword(auth,e,p); }
+  catch(err){ document.getElementById('authMsg').innerText=err.message; }
 }
 window.logout = async()=>{ await signOut(auth); location.reload(); }
 
+window.useMyLocation = ()=>{
+  if(!navigator.geolocation) return alert('GPS not supported');
+  document.getElementById('rLat').placeholder='Locating...';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById('rLat').value = pos.coords.latitude;
+    document.getElementById('rLng').value = pos.coords.longitude;
+  }, ()=> alert('Failed to get location. Enable GPS'));
+}
+
 async function checkRestaurantProfile(uid){
-  const docRef = doc(db,'restaurants',uid);
-  const snap = await getDoc(docRef);
+  const refDoc = doc(db,'restaurants',uid);
+  const snap = await getDoc(refDoc);
   if(!snap.exists()){
     document.getElementById('profileDiv').classList.remove('hidden');
     return;
   }
   const data = snap.data();
   currentRestId = uid;
-  if(data.status === 'pending' || data.status === 'rejected'){
+  if(data.status==='pending' || data.status==='rejected'){
     document.getElementById('pendingDiv').classList.remove('hidden');
     document.getElementById('pendingName').innerText = data.name;
-  } else if(data.status === 'approved'){
+    document.getElementById('pendingStatus').innerText = data.status;
+  } else if(data.status==='approved'){
     document.getElementById('menuDiv').classList.remove('hidden');
     document.getElementById('approvedName').innerText = data.name;
     loadMenu();
@@ -124,47 +185,69 @@ async function checkRestaurantProfile(uid){
 }
 
 window.createRestaurant = async()=>{
-  const name = document.getElementById('rName').value;
-  const cuisine = document.getElementById('rCuisine').value;
-  const phone = document.getElementById('rPhone').value;
-  const address = document.getElementById('rAddress').value;
-  const logoFile = document.getElementById('rLogo').files[0];
-  const coverFile = document.getElementById('rCover').files[0];
-  if(!name) return alert('Enter name');
+  const name=document.getElementById('rName').value.trim();
+  const cuisine=document.getElementById('rCuisine').value.trim();
+  const phone=document.getElementById('rPhone').value.trim();
+  const address=document.getElementById('rAddress').value.trim();
+  const lat=document.getElementById('rLat').value.trim();
+  const lng=document.getElementById('rLng').value.trim();
+  const logoFile=document.getElementById('rLogo').files[0];
+  const coverFile=document.getElementById('rCover').files[0];
 
-  document.getElementById('profileMsg').innerText = 'Uploading...';
-  let logoUrl = '', coverUrl = '';
-  if(logoFile){ const r = ref(storage,`restaurants/${currentUser.uid}/logo.jpg`); await uploadBytes(r,logoFile); logoUrl = await getDownloadURL(r); }
-  if(coverFile){ const r = ref(storage,`restaurants/${currentUser.uid}/cover.jpg`); await uploadBytes(r,coverFile); coverUrl = await getDownloadURL(r); }
+  if(!name||!phone) return alert('Name & Phone required');
+  if(!lat||!lng) return alert('Click Use My Current Location first');
 
-  await setDoc(doc(db,'restaurants',currentUser.uid),{
-    name, cuisine, phone, address, logoUrl, coverUrl,
-    ownerId: currentUser.uid,
-    ownerEmail: currentUser.email,
-    status: 'pending',
-    createdAt: new Date()
-  });
-  alert('Profile saved! Waiting for admin approval');
-  location.reload();
+  document.getElementById('profileMsg').innerText='Uploading... please wait';
+  try{
+    let logoUrl='', coverUrl='';
+    if(logoFile){ const r=ref(storage,`restaurants/${currentUser.uid}/logo_${Date.now()}.jpg`); await uploadBytes(r,logoFile); logoUrl=await getDownloadURL(r); }
+    if(coverFile){ const r=ref(storage,`restaurants/${currentUser.uid}/cover_${Date.now()}.jpg`); await uploadBytes(r,coverFile); coverUrl=await getDownloadURL(r); }
+
+    await setDoc(doc(db,'restaurants',currentUser.uid),{
+      name, cuisine, phone, address,
+      lat: Number(lat), lng: Number(lng),
+      logoUrl, coverUrl,
+      ownerId: currentUser.uid,
+      ownerEmail: currentUser.email,
+      status: 'pending',
+      createdAt: new Date()
+    });
+    alert('Submitted! Waiting for admin approval');
+    location.reload();
+  }catch(e){ document.getElementById('profileMsg').innerText=e.message; }
 }
 
 window.uploadItem = async()=>{
-  const name = document.getElementById('itemName').value;
-  const price = document.getElementById('itemPrice').value;
-  const file = document.getElementById('itemImage').files[0];
-  if(!name || !price) return alert('Fill all');
-  let imageUrl = '';
-  if(file){ const r = ref(storage,`restaurants/${currentUser.uid}/menu/${Date.now()}.jpg`); await uploadBytes(r,file); imageUrl = await getDownloadURL(r); }
-  await addDoc(collection(db,'restaurants',currentUser.uid,'menu'),{name, price:Number(price), imageUrl, createdAt:new Date()});
-  alert('Product Uploaded');
-  document.getElementById('itemName').value=''; document.getElementById('itemPrice').value='';
-  loadMenu();
+  const name=document.getElementById('itemName').value.trim();
+  const price=document.getElementById('itemPrice').value.trim();
+  const desc=document.getElementById('itemDesc').value.trim();
+  const file=document.getElementById('itemImage').files[0];
+  if(!name||!price) return alert('Enter name & price');
+
+  try{
+    let imageUrl='';
+    if(file){ const r=ref(storage,`restaurants/${currentUser.uid}/menu/${Date.now()}.jpg`); await uploadBytes(r,file); imageUrl=await getDownloadURL(r); }
+    await addDoc(collection(db,'restaurants',currentUser.uid,'menu'),{name, price:Number(price), description:desc, imageUrl, createdAt:new Date()});
+    alert('Product added!');
+    document.getElementById('itemName').value=''; document.getElementById('itemPrice').value=''; document.getElementById('itemDesc').value='';
+    loadMenu();
+  }catch(e){ alert(e.message); }
 }
 
 async function loadMenu(){
-  const snap = await getDocs(collection(db,'restaurants',currentRestId,'menu'));
-  const list = document.getElementById('itemList'); list.innerHTML='';
-  snap.forEach(d=>{ const i=d.data(); list.innerHTML+=`<div class="card"><b>${i.name}</b> - UGX ${i.price}</div>` })
+  const snap=await getDocs(collection(db,'restaurants',currentRestId,'menu'));
+  const list=document.getElementById('itemList'); list.innerHTML='';
+  if(snap.empty){ list.innerHTML='<small>No products yet</small>'; return; }
+  snap.forEach(d=>{
+    const i=d.data();
+    list.innerHTML+=`<div class="card"><div><b>${i.name}</b><br><small>UGX ${i.price}</small></div><button class="btn-grey" onclick="deleteItem('${d.id}')">Delete</button></div>`;
+  });
+}
+
+window.deleteItem = async(id)=>{
+  if(!confirm('Delete?')) return;
+  await deleteDoc(doc(db,'restaurants',currentRestId,'menu',id));
+  loadMenu();
 }
 </script>
 </body>
