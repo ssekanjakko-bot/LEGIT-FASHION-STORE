@@ -1,235 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GoBite Partner</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoBite Partner - Full</title>
 <style>
-*{box-sizing:border-box;font-family:Arial, sans-serif}
-body{background:#FEF9F0;margin:0 auto;max-width:480px;padding-bottom:40px}
-.top{background:#0B4D2E;color:#fff;padding:14px;text-align:center;font-weight:700;font-size:18px}
-.box{background:#fff;margin:12px;padding:18px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
-input,textarea,select{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:10px;font-size:14px}
-.btn{width:100%;padding:12px;border:none;border-radius:10px;font-weight:700;margin-top:10px;cursor:pointer;font-size:14px}
-.orange{background:#FF6B35;color:#fff}.green{background:#0B4D2E;color:#fff}.grey{background:#eee;color:#333}
-.hidden{display:none}
-.err{background:#ffdddd;color:#900;padding:10px;border-radius:8px;margin-top:10px;font-size:13px;display:none}
-.ok{background:#d4edda;color:#155724;padding:10px;border-radius:8px;margin-top:10px;font-size:13px;display:none}
-label{font-size:12px;font-weight:700;color:#444;margin-top:8px;display:block}
+*{box-sizing:border-box;font-family:Arial}body{background:#FEF9F0;margin:0}
+.top{background:#0B4D2E;color:#fff;padding:14px;text-align:center;font-weight:700;font-size:18px;position:sticky;top:0;z-index:20}
+.card{background:#fff;max-width:520px;margin:12px auto;padding:16px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+input,select,textarea{width:100%;padding:11px;margin:7px 0;border:1px solid #ddd;border-radius:10px;font-size:14px}
+.btn{width:100%;padding:11px;background:#0B4D2E;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;margin-top:8px}
+.tabs{display:flex;gap:6px;margin:10px 0}.tab{flex:1;padding:8px;border:1px solid #0B4D2E;border-radius:20px;background:#fff;color:#0B4D2E;font-weight:700;font-size:12px;cursor:pointer}
+.tab.active{background:#0B4D2E;color:#fff}
+.prod{border:1px solid #eee;border-radius:10px;padding:10px;margin:8px 0;display:flex;gap:10px;align-items:center}
+.prod img{width:55px;height:55px;object-fit:cover;border-radius:8px;background:#eee}
+.order{border:2px solid #0B4D2E;border-radius:12px;padding:12px;margin:10px 0;background:#fff;animation:pop.3s}
+@keyframes pop{from{transform:scale(.95)}to{transform:scale(1)}}
+.order.new{border-color:#FF6B35;background:#fff8f0}
+.badge{padding:3px 7px;border-radius:12px;font-size:10px;font-weight:700;color:#fff}
+.b-new{background:#FF6B35}.b-accept{background:#0B4D2E}.b-ready{background:#007bff}
+.item{font-size:12px;padding:3px 0;display:flex;justify-content:space-between;border-bottom:1px dashed #eee}
+.admin-box{border:2px solid #ff9800;border-radius:12px;padding:10px;margin:10px 0;background:#fff;display:none}
+.admin-msg{background:#fff3cd;padding:8px;border-radius:8px;margin:6px 0;font-size:12px;border-left:4px solid #ff9800}
 </style>
 </head>
 <body>
 <div class="top">GoBite UG - Partner Portal</div>
-<div class="box">
 
-<h3 id="title">Create Partner Account</h3>
-<p id="uEmail" style="font-size:12px;color:#666"></p>
-<button id="logout" class="grey hidden" style="width:auto;float:right;margin-top:-35px;padding:6px 12px" onclick="doLogout()">Logout</button>
-
-<!-- AUTH -->
-<div id="authBox">
-<input id="email" type="email" placeholder="Email - any email works">
-<input id="pass" type="password" placeholder="Password - min 6 characters">
-<button class="btn orange" onclick="doSignup()">SIGN UP - NEW PARTNER</button>
-<button class="btn green" onclick="doLogin()">LOGIN - EXISTING PARTNER</button>
-<div id="errBox" class="err"></div>
-<div id="okBox" class="ok"></div>
-<p style="font-size:11px;color:#888;margin-top:10px;text-align:center">Any person can sign up with any email. After signup you will register restaurant.</p>
+<div id="authBox" class="card">
+<h3>Partner Login</h3>
+<input id="email" type="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<button class="btn" onclick="login()">Login</button>
+<button class="btn" style="background:#eee;color:#333" onclick="signup()">Create Account</button>
+<p id="authErr" style="color:red;font-size:12px"></p>
 </div>
 
-<!-- REGISTER RESTAURANT -->
-<div id="profileBox" class="hidden">
-<h4>Register Your Restaurant</h4>
-<input id="rName" placeholder="Restaurant Name * e.g Mama's Kitchen">
-<input id="rPhone" placeholder="Phone Number * e.g 0700000000">
-<input id="rCuisine" placeholder="Cuisine e.g Chicken, Fast Food, Local">
-<textarea id="rAddress" placeholder="Address e.g Kampala, Wandegeya"></textarea>
-<div style="display:flex;gap:6px">
-<input id="rLat" placeholder="Latitude" readonly>
-<input id="rLng" placeholder="Longitude" readonly>
+<div id="dash" class="card" style="display:none">
+<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+<span id="uEmail" style="color:#666"></span><button onclick="logout()" style="background:#eee;border:none;padding:5px 10px;border-radius:6px">Logout</button>
 </div>
-<button class="btn grey" onclick="getLoc()">📍 Use My Current Location (Required)</button>
-<label>Restaurant Logo</label>
-<input type="file" id="rLogo" accept="image/*">
-<label>Cover Image - This shows to customers on homepage</label>
-<input type="file" id="rCover" accept="image/*">
-<button class="btn orange" onclick="createRestaurant()">Submit For Admin Approval</button>
-<div id="pErr" class="err"></div>
-<div id="pOk" class="ok"></div>
+<h2 style="margin:8px 0" id="restName">Loading...</h2>
+
+<!-- ADMIN MESSAGES INBOX -->
+<div id="adminInbox" class="admin-box">
+<div style="display:flex;justify-content:space-between"><b>📩 Messages from Admin</b><span id="adminMsgCount" style="background:#ff9800;color:#fff;padding:2px 7px;border-radius:12px;font-size:11px">0</span></div>
+<div id="adminMessagesList" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>
 </div>
 
-<!-- PENDING -->
-<div id="pendingBox" class="hidden">
-<h3>⏳ Pending Approval</h3>
-<p>Your restaurant <b id="pName"></b> is waiting for approval.</p>
-<p>Status: <b id="pStatus"></b></p>
-<p style="font-size:12px;color:#666">Admin will approve you in admin774.html. After approval refresh this page to upload menu.</p>
+<div class="tabs">
+<button id="tabOrders" class="tab active" onclick="switchMain('orders')">📦 Orders (<span id="oCount">0</span>)</button>
+<button id="tabMenu" class="tab" onclick="switchMain('menu')">🍔 My Menu</button>
+<button id="tabProfile" class="tab" onclick="switchMain('profile')">⚙️ Profile</button>
 </div>
 
-<!-- MENU UPLOAD -->
-<div id="menuBox" class="hidden">
-<h3>✅ <span id="aName"></span></h3>
-<p style="font-size:13px">Upload your foods - they will show to customers near you</p>
-<input id="iName" placeholder="Food Name e.g Chicken Luwombo">
-<input id="iPrice" type="number" placeholder="Price UGX e.g 15000">
-<input type="file" id="iImage" accept="image/*">
-<button class="btn green" onclick="uploadItem()">Upload Product</button>
-<div id="mList" style="margin-top:15px"></div>
+<div id="ordersArea">
+<div style="display:flex;gap:6px;margin-bottom:8px">
+<button class="tab active" id="fNew" onclick="filterOrders('new')">New</button>
+<button class="tab" id="fAccepted" onclick="filterOrders('accepted')">Accepted</button>
+<button class="tab" id="fAll" onclick="filterOrders('all')">All</button>
+</div>
+<div id="ordersList"><p style="font-size:12px;color:#888;text-align:center;padding:20px">No orders yet.<br>When customer orders from restaurant.html, it appears here LIVE with sound.</p></div>
+<audio id="ding" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 </div>
 
+<div id="menuArea" style="display:none">
+<p style="font-size:13px">Upload foods - Category coordinates with restaurant.html</p>
+<input id="fName" placeholder="Food Name e.g Chicken Luwombo">
+<input id="fPrice" type="number" placeholder="Price UGX">
+<select id="fCategory">
+<option value="">Select Category</option>
+<option value="Main Course">Main Course</option>
+<option value="Quick Bites">Quick Bites</option>
+<option value="Chicken">Chicken</option>
+<option value="Local Food">Local Food</option>
+<option value="Rice">Rice</option>
+<option value="Drinks">Drinks</option>
+<option value="Breakfast">Breakfast</option>
+<option value="Snacks">Snacks</option>
+<option value="Pizza">Pizza</option>
+<option value="Burgers">Burgers</option>
+</select>
+<input id="fFile" type="file" accept="image/*">
+<button class="btn" onclick="uploadFood()">Upload Product</button>
+<p id="upStatus" style="font-size:12px"></p>
+<h4>Your Products</h4>
+<div id="myProducts"></div>
+</div>
+
+<div id="profileArea" style="display:none">
+<div id="regBox">
+<input id="rName" placeholder="Restaurant Name e.g Sanel">
+<input id="rPhone" placeholder="Phone 07...">
+<input id="rCuisine" placeholder="Cuisine e.g Fast Food">
+<input id="rAddress" placeholder="Address">
+<button class="btn" onclick="getGPS()">📍 Get My GPS Location</button>
+<p id="gpsStatus" style="font-size:11px;color:#666"></p>
+<button class="btn" onclick="register()">Save Restaurant</button>
+<p style="font-size:11px;color:#888;margin-top:6px">Status: <span id="rStatus"></span></p>
+</div>
+</div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, updateDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",
-  authDomain: "gobite-ug.firebaseapp.com",
-  projectId: "gobite-ug",
-  storageBucket: "gobite-ug.firebasestorage.app",
-  messagingSenderId: "479330891516",
-  appId: "1:479330891516:web:dff4620fc3344a45b3c979",
-  measurementId: "G-90RHYD791R"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
-
-let curUser=null, curId=null;
-
-function showErr(id,msg){ const el=document.getElementById(id); el.style.display='block'; el.className='err'; el.innerText=msg; }
-function showOk(id,msg){ const el=document.getElementById(id); el.style.display='block'; el.className='ok'; el.innerText=msg; }
+const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
+const app=initializeApp(firebaseConfig); const auth=getAuth(app); const db=getFirestore(app);
+let curUser=null, myRest=null, myLat=null, myLng=null, allOrders=[], orderFilter='new', unsubOrders=null, unsubAdmin=null;
 
 onAuthStateChanged(auth, async user=>{
-  if(user){
-    curUser=user;
-    document.getElementById('authBox').classList.add('hidden');
-    document.getElementById('logout').classList.remove('hidden');
-    document.getElementById('uEmail').innerText=user.email;
-    document.getElementById('title').innerText='Dashboard';
-    try{
-      const snap=await getDoc(doc(db,'restaurants',user.uid));
-      if(!snap.exists()){
-        document.getElementById('profileBox').classList.remove('hidden');
-      }else{
-        const d=snap.data(); curId=user.uid;
-        if(d.status!=='approved'){
-          document.getElementById('pendingBox').classList.remove('hidden');
-          document.getElementById('pName').innerText=d.name;
-          document.getElementById('pStatus').innerText=d.status;
-        }else{
-          document.getElementById('menuBox').classList.remove('hidden');
-          document.getElementById('aName').innerText=d.name;
-          loadMenu();
-        }
-      }
-    }catch(e){ showErr('errBox',e.message); }
-  }else{
-    document.getElementById('authBox').classList.remove('hidden');
-    document.getElementById('profileBox').classList.add('hidden');
-    document.getElementById('pendingBox').classList.add('hidden');
-    document.getElementById('menuBox').classList.add('hidden');
-    document.getElementById('logout').classList.add('hidden');
-  }
+  if(user){ curUser=user; authBox.style.display='none'; dash.style.display='block'; uEmail.innerText=user.email; loadRest(); }
+  else{ authBox.style.display='block'; dash.style.display='none'; if(unsubOrders) unsubOrders(); if(unsubAdmin) unsubAdmin(); }
 });
 
-window.doSignup = async()=>{
-  const e=document.getElementById('email').value.trim();
-  const p=document.getElementById('pass').value.trim();
-  document.getElementById('errBox').style.display='none';
-  document.getElementById('okBox').style.display='none';
-  if(!e||!p){ showErr('errBox','Enter email and password'); return; }
-  if(p.length<6){ showErr('errBox','Password must be 6+ characters'); return; }
-  showOk('okBox','Creating account for '+e+'...');
-  try{
-    await createUserWithEmailAndPassword(auth,e,p);
-    showOk('okBox','Account created! Now register restaurant');
-  }catch(err){
-    if(err.code==='auth/email-already-in-use'){ showErr('errBox','This email already exists. Click LOGIN button instead.'); }
-    else if(err.code==='auth/unauthorized-domain'){ showErr('errBox','Domain not authorized. Add '+window.location.hostname+' in Firebase > Auth > Settings > Authorized domains'); }
-    else{ showErr('errBox',err.code+': '+err.message); }
-  }
+window.login=async()=>{ try{ await signInWithEmailAndPassword(auth,email.value,pass.value);}catch(e){authErr.innerText=e.message;} };
+window.signup=async()=>{ try{ await createUserWithEmailAndPassword(auth,email.value,pass.value);}catch(e){authErr.innerText=e.message;} };
+window.logout=async()=>{ await signOut(auth); location.reload(); };
+window.getGPS=()=>{ gpsStatus.innerText='Getting...'; navigator.geolocation.getCurrentPosition(p=>{myLat=p.coords.latitude;myLng=p.coords.longitude;gpsStatus.innerText=`📍 Got: ${myLat.toFixed(5)}, ${myLng.toFixed(5)}`;},e=>{gpsStatus.innerText='Failed '+e.message;}); };
+window.switchMain=(t)=>{
+  tabOrders.classList.remove('active'); tabMenu.classList.remove('active'); tabProfile.classList.remove('active');
+  document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active');
+  ordersArea.style.display=t==='orders'?'block':'none';
+  menuArea.style.display=t==='menu'?'block':'none';
+  profileArea.style.display=t==='profile'?'block':'none';
 };
 
-window.doLogin = async()=>{
-  const e=document.getElementById('email').value.trim();
-  const p=document.getElementById('pass').value.trim();
-  document.getElementById('errBox').style.display='none';
-  document.getElementById('okBox').style.display='none';
-  showOk('okBox','Logging in...');
-  try{ await signInWithEmailAndPassword(auth,e,p); }
-  catch(err){ showErr('errBox',err.code+': '+err.message); document.getElementById('okBox').style.display='none'; }
-};
-
-window.doLogout = async()=>{ await signOut(auth); location.reload(); };
-
-window.getLoc = ()=>{
-  if(!navigator.geolocation){ showErr('pErr','GPS not supported'); return; }
-  showOk('pOk','Getting location...');
-  navigator.geolocation.getCurrentPosition(pos=>{
-    document.getElementById('rLat').value=pos.coords.latitude;
-    document.getElementById('rLng').value=pos.coords.longitude;
-    showOk('pOk','Location saved: '+pos.coords.latitude.toFixed(5)+', '+pos.coords.longitude.toFixed(5));
-  },()=>{ showErr('pErr','Enable GPS and allow location permission'); });
-};
-
-window.createRestaurant = async()=>{
-  const name=document.getElementById('rName').value.trim();
-  const phone=document.getElementById('rPhone').value.trim();
-  const lat=document.getElementById('rLat').value.trim();
-  const lng=document.getElementById('rLng').value.trim();
-  if(!name||!phone){ showErr('pErr','Restaurant Name and Phone required'); return; }
-  if(!lat||!lng){ showErr('pErr','Click Use My Current Location - GPS required for customers near you'); return; }
-  showOk('pOk','Uploading... please wait');
-  try{
-    let logoUrl='', coverUrl='';
-    const logoFile=document.getElementById('rLogo').files[0];
-    if(logoFile){ const r=ref(storage,`restaurants/${curUser.uid}/logo.jpg`); await uploadBytes(r,logoFile); logoUrl=await getDownloadURL(r); }
-    const coverFile=document.getElementById('rCover').files[0];
-    if(coverFile){ const r=ref(storage,`restaurants/${curUser.uid}/cover.jpg`); await uploadBytes(r,coverFile); coverUrl=await getDownloadURL(r); }
-    await setDoc(doc(db,'restaurants',curUser.uid),{
-      name, phone,
-      cuisine: document.getElementById('rCuisine').value.trim(),
-      address: document.getElementById('rAddress').value.trim(),
-      lat: Number(lat), lng: Number(lng),
-      logoUrl, coverUrl,
-      ownerId: curUser.uid,
-      ownerEmail: curUser.email,
-      status: 'pending',
-      createdAt: new Date()
-    });
-    alert('Submitted! Admin will approve in admin774.html');
-    location.reload();
-  }catch(e){ showErr('pErr','Failed: '+e.message); }
-};
-
-window.uploadItem = async()=>{
-  const name=document.getElementById('iName').value.trim();
-  const price=document.getElementById('iPrice').value.trim();
-  if(!name||!price){ alert('Enter name & price'); return; }
-  try{
-    let imageUrl='';
-    const file=document.getElementById('iImage').files[0];
-    if(file){ const r=ref(storage,`restaurants/${curId}/menu/${Date.now()}.jpg`); await uploadBytes(r,file); imageUrl=await getDownloadURL(r); }
-    await addDoc(collection(db,'restaurants',curId,'menu'),{ name, price: Number(price), imageUrl, createdAt: new Date() });
-    document.getElementById('iName').value=''; document.getElementById('iPrice').value='';
-    alert('Product uploaded'); loadMenu();
-  }catch(e){ alert('Upload failed: '+e.message); }
-};
-
-async function loadMenu(){
-  try{
-    const snap=await getDocs(collection(db,'restaurants',curId,'menu'));
-    const list=document.getElementById('mList');
-    list.innerHTML='<h4>Your Products</h4>';
-    snap.forEach(d=>{ list.innerHTML+=`<div style="border:1px solid #eee;padding:10px;margin:6px 0;border-radius:10px;display:flex;justify-content:space-between"><span><b>${d.data().name}</b><br><small>UGX ${d.data().price}</small></span></div>`; });
-  }catch(e){ console.log(e); }
+async function loadRest(){
+  const snap=await getDoc(doc(db,'restaurants',curUser.uid));
+  if(!snap.exists()){ restName.innerText='No restaurant yet'; rStatus.innerText='Not registered'; regBox.style.display='block'; switchMain('profile'); return; }
+  myRest=snap.data(); restName.innerText='✅ '+myRest.name+' - '+myRest.status; rStatus.innerText=myRest.status;
+  myLat=myRest.lat; myLng=myRest.lng;
+  rName.value=myRest.name||''; rPhone.value=myRest.phone||''; rCuisine.value=myRest.cuisine||''; rAddress.value=myRest.address||'';
+  gpsStatus.innerText=myRest.lat?`📍 ${myRest.lat.toFixed(5)}, ${myRest.lng.toFixed(5)}`:'No GPS yet';
+  loadProducts(); listenOrders(); listenAdminMessages();
 }
+
+window.register=async()=>{
+  const name=rName.value.trim(); if(!name){ alert('Name required'); return; }
+  if(!myLat){ alert('Click Get My GPS first'); return; }
+  await setDoc(doc(db,'restaurants',curUser.uid),{ownerId:curUser.uid, ownerEmail:curUser.email, name, phone:rPhone.value.trim(), cuisine:rCuisine.value.trim(), address:rAddress.value.trim(), lat:myLat, lng:myLng, status:myRest?.status||'pending', createdAt:myRest?.createdAt||serverTimestamp(), updatedAt:serverTimestamp()}, {merge:true});
+  alert('Saved! If pending wait admin approval'); loadRest();
+};
+
+window.uploadFood=async()=>{
+  const name=fName.value.trim(), price=fPrice.value.trim(), category=fCategory.value, file=fFile.files[0];
+  if(!name||!price||!category||!file){ alert('Fill all fields + select category + image'); return; }
+  upStatus.innerText='Uploading...';
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    await addDoc(collection(db,'restaurants',curUser.uid,'menu'),{name, price:Number(price), category, imageUrl:e.target.result, createdAt:serverTimestamp()});
+    upStatus.innerText='Uploaded: '+name+' ('+category+')'; fName.value=''; fPrice.value=''; fCategory.value=''; fFile.value=''; loadProducts();
+  };
+  reader.readAsDataURL(file);
+};
+
+async function loadProducts(){
+  const snap=await getDocs(collection(db,'restaurants',curUser.uid,'menu'));
+  const box=myProducts; box.innerHTML=''; if(snap.empty){ box.innerHTML='<p style="font-size:12px;color:#888">No products</p>'; return; }
+  snap.forEach(d=>{
+    const m=d.data(); const div=document.createElement('div'); div.className='prod';
+    div.innerHTML=`<img src="${m.imageUrl}"><div style="flex:1"><b style="font-size:13px">${m.name}</b><br><small>${m.category} - UGX ${m.price}</small></div><button onclick="delProd('${d.id}')" style="border:none;background:#ffdddd;padding:5px 8px;border-radius:6px">Del</button>`;
+    box.appendChild(div);
+  });
+}
+window.delProd=async(id)=>{ if(!confirm('Delete?'))return; await deleteDoc(doc(db,'restaurants',curUser.uid,'menu',id)); loadProducts(); };
+
+function listenOrders(){
+  if(unsubOrders) unsubOrders();
+  const q=query(collection(db,'orders'), where('restId','==',curUser.uid), orderBy('createdAt','desc'));
+  unsubOrders=onSnapshot(q, (snap)=>{
+    const hadNew = snap.docChanges().some(c=>c.type==='added' && c.doc.data().status==='new');
+    allOrders=[]; snap.forEach(d=>allOrders.push({id:d.id,...d.data()}));
+    oCount.innerText=allOrders.filter(o=>o.status==='new').length;
+    if(hadNew){ document.getElementById('ding').play().catch(()=>{}); if(Notification && Notification.permission==='granted') new Notification('New GoBite Order! - '+allOrders[0]?.customerName); }
+    renderOrders();
+  });
+}
+window.filterOrders=(f)=>{ orderFilter=f; fNew.classList.remove('active'); fAccepted.classList.remove('active'); fAll.classList.remove('active'); document.getElementById('f'+f.charAt(0).toUpperCase()+f.slice(1)).classList.add('active'); renderOrders(); };
+function renderOrders(){
+  const list=ordersList;
+  let filtered=allOrders; if(orderFilter==='new') filtered=allOrders.filter(o=>o.status==='new'); if(orderFilter==='accepted') filtered=allOrders.filter(o=>o.status==='accepted');
+  if(!filtered.length){ list.innerHTML=`<p style="font-size:12px;color:#888;text-align:center;padding:20px">No ${orderFilter} orders</p>`; return; }
+  list.innerHTML='';
+  filtered.forEach(o=>{
+    const div=document.createElement('div'); div.className='order '+(o.status==='new'?'new':'');
+    const itemsHtml=(o.items||[]).map(i=>`<div class="item"><span>${i.name} x${i.qty||1}</span><span>UGX ${i.price}</span></div>`).join('');
+    div.innerHTML=`
+      <div style="display:flex;justify-content:space-between"><b>Order #${o.id.slice(0,6)}</b><span class="badge ${o.status==='new'?'b-new':'b-accept'}">${o.status.toUpperCase()}</span></div>
+      <div style="font-size:11px;color:#666;margin:4px 0">👤 ${o.customerName||''} - 📞 ${o.customerPhone||''}<br>📍 ${o.customerAddress||''}<br>🕐 ${o.createdAt?.toDate?.()?.toLocaleString?.()||'Now'}</div>
+      <div style="background:#f9f9f9;padding:6px;border-radius:6px;margin:6px 0">${itemsHtml}<div style="text-align:right;font-weight:700;margin-top:4px">Total: UGX ${o.total}</div></div>
+      ${o.note?`<div style="font-size:11px;background:#fff3cd;padding:5px;border-radius:5px">Note: ${o.note}</div>`:''}
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        ${o.status==='new'?`<button class="btn" style="padding:7px" onclick="updateOrder('${o.id}','accepted')">✅ Accept</button><button class="btn" style="padding:7px;background:#dc3545" onclick="updateOrder('${o.id}','rejected')">❌ Reject</button>`:`<button class="btn" style="padding:7px;background:#007bff" onclick="updateOrder('${o.id}','ready')">🍱 Ready</button><button class="btn" style="padding:7px;background:#28a745" onclick="updateOrder('${o.id}','completed')">✅ Completed</button>`}
+        <a href="tel:${o.customerPhone}" style="flex:1"><button class="btn" style="padding:7px;background:#eee;color:#333;width:100%">📞 Call Customer</button></a>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+window.updateOrder=async(id,status)=>{ await updateDoc(doc(db,'orders',id),{status, updatedAt:serverTimestamp()}); };
+
+function listenAdminMessages(){
+  if(unsubAdmin) unsubAdmin();
+  const q=query(collection(db,'restaurants',curUser.uid,'adminMessages'), orderBy('createdAt','desc'));
+  unsubAdmin=onSnapshot(q, (snap)=>{
+    const box=adminInbox; const list=adminMessagesList;
+    if(snap.empty){ box.style.display='none'; return; }
+    box.style.display='block'; adminMsgCount.innerText=snap.size; list.innerHTML='';
+    snap.forEach(d=>{
+      const m=d.data();
+      const div=document.createElement('div'); div.className='admin-msg';
+      div.innerHTML=`<b>Admin:</b> ${m.message}<br><small style="color:#666">${m.fromEmail||''} - ${m.createdAt?.toDate?.()?.toLocaleString?.()||'Now'}</small>`;
+      list.appendChild(div);
+    });
+    document.getElementById('ding').play().catch(()=>{});
+  });
+}
+
+if(Notification && Notification.permission!=='granted'){ Notification.requestPermission(); }
 </script>
 </body>
 </html>
