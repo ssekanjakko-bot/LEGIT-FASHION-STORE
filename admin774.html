@@ -2,84 +2,218 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GoBite Admin - Monitor Posts</title>
+<title>GoBite Admin - Super Authority</title>
 <style>
-*{box-sizing:border-box;font-family:Arial}body{background:#f2f2f2;margin:0 auto;max-width:900px}
+*{box-sizing:border-box;font-family:Arial}body{background:#f2f2f2;margin:0 auto;max-width:950px}
 .top{background:#0B4D2E;color:#fff;padding:14px;text-align:center;font-weight:700}
-.tabs{display:flex;gap:5px;margin:10px} .tab{flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;background:#ddd;font-weight:700} .tab.active{background:#0B4D2E;color:#fff}
-.box{background:#fff;margin:10px;padding:12px;border-radius:12px}
-.card{border:1px solid #eee;border-radius:12px;padding:10px;margin:10px 0;display:flex;gap:10px}
+.box{background:#fff;margin:10px;padding:15px;border-radius:12px}
+.tabs{display:flex;gap:5px;margin:10px}.tab{flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;background:#ddd;font-weight:700}.tab.active{background:#0B4D2E;color:#fff}
+.card{border:1px solid #eee;border-radius:12px;padding:12px;margin:12px 0}
+.card-head{display:flex;gap:10px}
 .card img{width:70px;height:70px;object-fit:cover;border-radius:8px;background:#eee}
-.btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;margin-right:4px}
-.approve{background:#0B4D2E;color:#fff}.reject{background:#dc3545;color:#fff}.view{background:#eee}
-.badge{padding:3px 6px;border-radius:5px;font-size:10px;font-weight:700} .pending{background:#fff3cd} .approved{background:#d4edda}
-.menu-item{font-size:12px;padding:5px 0;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between}
+.btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;margin:3px}
+.approve{background:#0B4D2E;color:#fff}.reject{background:#dc3545;color:#fff}.view{background:#eee}.edit{background:#ffc107}
+.badge{padding:3px 6px;border-radius:5px;font-size:10px;font-weight:700}.pending{background:#fff3cd}.approved{background:#d4edda}
+input,textarea{width:100%;padding:8px;margin:4px 0;border:1px solid #ddd;border-radius:6px;font-size:13px}
+.menu-item{background:#fafafa;padding:8px;margin:5px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.price-edit{display:flex;gap:4px;align-items:center}
+.note-box{background:#fff3cd;padding:8px;border-radius:8px;margin-top:8px;font-size:12px}
 </style>
 </head>
 <body>
-<div class="top">GoBite Admin - See All Posts + Approve</div>
+<div class="top">GoBite UG - Admin Super Authority (UID Protected)</div>
+
+<div id="loginBox" class="box">
+<h3>🔒 Admin Login</h3>
+<p style="font-size:12px;color:#666">Only UID in rules can login. First login will show your UID to copy.</p>
+<input id="adminEmail" type="email" placeholder="Admin Email">
+<input id="adminPass" type="password" placeholder="Password">
+<button onclick="adminLogin()" style="width:100%;padding:10px;background:#0B4D2E;color:#fff;border:none;border-radius:8px;font-weight:700">Login</button>
+<div id="loginErr" style="color:red;font-size:12px;margin-top:8px;display:none"></div>
+<div id="uidShow" style="margin-top:10px;font-size:11px;background:#eee;padding:8px;border-radius:6px;display:none"></div>
+</div>
+
+<div id="adminContent" style="display:none">
+<div style="padding:10px;display:flex;justify-content:space-between;background:#fff;margin:10px;border-radius:8px;font-size:12px">
+<span>Admin UID: <b id="adminUid"></b> | <b id="adminEmailShow"></b></span><button onclick="logout()" style="background:#eee;border:none;padding:5px 10px;border-radius:6px">Logout</button>
+</div>
 <div class="tabs">
-<button id="tPending" class="tab active" onclick="setTab('pending')">⏳ Pending (<span id="cP">0</span>)</button>
-<button id="tApproved" class="tab" onclick="setTab('approved')">✅ Approved (<span id="cA">0</span>)</button>
-<button id="tAll" class="tab" onclick="setTab('all')">All Restaurants</button>
+<button id="tPending" class="tab active" onclick="setTab('pending')">Pending (<span id="cP">0</span>)</button>
+<button id="tApproved" class="tab" onclick="setTab('approved')">Approved (<span id="cA">0</span>)</button>
+<button id="tAll" class="tab" onclick="setTab('all')">All</button>
 </div>
 <div class="box"><div id="list">Loading...</div></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+// === PUT YOUR ADMIN UID HERE - SAME AS FIRESTORE RULES ===
+const ADMIN_UIDS = [
+  "PASTE_YOUR_ADMIN_UID_HERE_1",
+  "PASTE_YOUR_ADMIN_UID_HERE_2"
+];
+
 const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
-const app=initializeApp(firebaseConfig); const db=getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app); const db=getFirestore(app);
 let all=[]; let tab='pending';
 
+onAuthStateChanged(auth, async user=>{
+  const errEl=document.getElementById('loginErr');
+  const uidShow=document.getElementById('uidShow');
+  if(user){
+    uidShow.style.display='block';
+    uidShow.innerHTML=`Your UID: <b>${user.uid}</b><br>Email: ${user.email}<br><br>Copy this UID and paste in:<br>1. Firestore Rules<br>2. ADMIN_UIDS array in this file`;
+    // Allow first setup when PASTE placeholder still there
+    const isSetupMode = ADMIN_UIDS[0].includes("PASTE");
+    if(!isSetupMode &&!ADMIN_UIDS.includes(user.uid)){
+      errEl.style.display='block';
+      errEl.innerText=`Access Denied - UID ${user.uid} not admin. Add to rules.`;
+      return;
+    }
+    document.getElementById('loginBox').style.display='none';
+    document.getElementById('adminContent').style.display='block';
+    document.getElementById('adminUid').innerText=user.uid;
+    document.getElementById('adminEmailShow').innerText=user.email;
+    load();
+  }else{
+    document.getElementById('loginBox').style.display='block';
+    document.getElementById('adminContent').style.display='none';
+  }
+});
+
+window.adminLogin=async()=>{
+  const e=document.getElementById('adminEmail').value.trim();
+  const p=document.getElementById('adminPass').value.trim();
+  const err=document.getElementById('loginErr'); err.style.display='none';
+  try{ await signInWithEmailAndPassword(auth,e,p); }
+  catch(ex){ err.style.display='block'; err.innerText=ex.code+': '+ex.message; }
+};
+window.logout=async()=>{ await signOut(auth); location.reload(); };
+
 async function load(){
-  const snap=await getDocs(collection(db,'restaurants'));
-  all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()}));
-  all.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-  document.getElementById('cP').innerText=all.filter(r=>r.status==='pending').length;
-  document.getElementById('cA').innerText=all.filter(r=>r.status==='approved').length;
-  render();
+  try{
+    const snap=await getDocs(collection(db,'restaurants'));
+    all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()}));
+    all.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    document.getElementById('cP').innerText=all.filter(r=>r.status==='pending').length;
+    document.getElementById('cA').innerText=all.filter(r=>r.status==='approved').length;
+    render();
+  }catch(e){ document.getElementById('list').innerHTML=`<div style="color:red">Error: ${e.message}<br>If Access Denied, add UID to Firestore Rules</div>`; }
 }
+
 function render(){
   const list=document.getElementById('list');
   let filtered=all; if(tab==='pending') filtered=all.filter(r=>r.status==='pending'); if(tab==='approved') filtered=all.filter(r=>r.status==='approved');
-  if(!filtered.length){ list.innerHTML='<p style="text-align:center;color:#888">No restaurants</p>'; return; }
+  if(!filtered.length){ list.innerHTML='<p style="text-align:center;color:#888">No restaurants in this tab</p>'; return; }
   list.innerHTML='';
   filtered.forEach(r=>{
     const div=document.createElement('div'); div.className='card';
     div.innerHTML=`
-      <img src="${r.coverUrl||r.logoUrl||'https://via.placeholder.com/70'}">
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between"><b>${r.name}</b><span class="badge ${r.status}">${r.status}</span></div>
-        <div style="font-size:11px;color:#666">${r.ownerEmail} | ${r.phone} | ${r.cuisine}<br>📍 ${r.address||''} - ${r.lat?.toFixed(4)},${r.lng?.toFixed(4)}</div>
-        <div style="margin-top:6px">
-          ${r.status==='pending'?`<button class="btn approve" onclick="approve('${r.id}')">✅ Approve</button>`:''}
-          ${r.status==='approved'?`<button class="btn reject" onclick="makePending('${r.id}')">Unapprove</button><a href="restaurant.html?id=${r.id}" target="_blank"><button class="btn view">View Live</button></a>`:''}
-          <button class="btn view" onclick="toggleMenu('${r.id}')">See What They Posted</button>
-          <button class="btn view" style="color:red" onclick="del('${r.id}')">Delete</button>
+      <div class="card-head">
+        <img src="${r.coverUrl||r.logoUrl||'https://via.placeholder.com/70'}">
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between"><b>${r.name||'Unnamed'}</b><span class="badge ${r.status}">${r.status}</span></div>
+          <div style="font-size:11px;color:#666">Owner: ${r.ownerEmail||''} | UID: ${r.ownerId||r.id}<br>📞 ${r.phone||''} | ${r.cuisine||''}<br>📍 ${r.address||''}</div>
         </div>
-        <div id="menu-${r.id}" style="display:none;margin-top:8px;background:#fafafa;padding:8px;border-radius:8px"></div>
-      </div>`;
+      </div>
+      <div style="margin-top:8px">
+        ${r.status==='pending'?`<button class="btn approve" onclick="approve('${r.id}')">✅ Approve - Show on Index</button>`:''}
+        ${r.status==='approved'?`<button class="btn reject" onclick="makePending('${r.id}')">⏸️ Revoke</button>`:''}
+        <button class="btn view" onclick="toggleMenu('${r.id}')">🍔 See Posts & Edit Price</button>
+        <button class="btn view" onclick="toggleMsg('${r.id}')">💬 Send Message/Note</button>
+        <button class="btn view" style="color:red" onclick="delRest('${r.id}')">🗑️ Delete Restaurant</button>
+      </div>
+      <div id="menu-${r.id}" style="display:none;margin-top:10px"></div>
+      <div id="msg-${r.id}" style="display:none;margin-top:10px;background:#fff8e1;padding:10px;border-radius:8px">
+        <b>Send Note to ${r.name}</b>
+        <textarea id="note-${r.id}" placeholder="e.g Your price is too high, reduce to 12000, or Your logo not clear..."></textarea>
+        <button class="btn approve" onclick="sendNote('${r.id}','${r.ownerEmail||''}')">Send Note to Restaurant</button>
+        <div id="prevNotes-${r.id}" style="margin-top:8px;font-size:11px"></div>
+      </div>
+    `;
     list.appendChild(div);
   });
 }
+
 window.setTab=t=>{ tab=t; document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); document.getElementById('t'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active'); render(); };
-window.approve=async id=>{ await updateDoc(doc(db,'restaurants',id),{status:'approved',approvedAt:new Date()}); alert('Approved - now shows on index.html'); load(); };
+window.approve=async id=>{ await updateDoc(doc(db,'restaurants',id),{status:'approved',approvedByUid:auth.currentUser.uid,approvedAt:new Date()}); alert('Approved by admin UID'); load(); };
 window.makePending=async id=>{ await updateDoc(doc(db,'restaurants',id),{status:'pending'}); load(); };
-window.del=async id=>{ if(!confirm('Delete permanently?'))return; await deleteDoc(doc(db,'restaurants',id)); load(); };
+window.delRest=async id=>{ if(!confirm('Delete restaurant permanently? Admin UID authority'))return; await deleteDoc(doc(db,'restaurants',id)); load(); };
+
+// --- MENU MANAGEMENT: SEE POSTS, EDIT PRICE, DELETE ---
 window.toggleMenu=async id=>{
   const el=document.getElementById('menu-'+id);
   if(el.style.display==='none'){
     el.style.display='block'; el.innerHTML='Loading posts...';
     const snap=await getDocs(collection(db,'restaurants',id,'menu'));
-    if(snap.empty){ el.innerHTML='<i>Restaurant has not posted any foods yet</i>'; return; }
-    let html=`<b>What they posted (${snap.size} items):</b><br>`;
-    snap.forEach(d=>{ const m=d.data(); html+=`<div class="menu-item"><span>${m.name} - UGX ${m.price}</span><button onclick="delItem('${id}','${d.id}')" style="border:none;background:#ffdddd;padding:3px 6px;border-radius:4px;cursor:pointer">Delete</button></div>`; });
+    if(snap.empty){ el.innerHTML='<i>This restaurant has not posted any food yet</i>'; return; }
+    let html=`<b>What they posted - Admin can edit price/add/reduce (${snap.size} items):</b>`;
+    snap.forEach(d=>{
+      const m=d.data();
+      html+=`<div class="menu-item">
+        <div><b>${m.name}</b><br><small>Current: UGX ${m.price}</small></div>
+        <div class="price-edit">
+          <input id="price-${d.id}" type="number" value="${m.price}" style="width:90px;padding:5px">
+          <button class="btn edit" onclick="updatePrice('${id}','${d.id}')">Update Price</button>
+          <button class="btn reject" onclick="delItem('${id}','${d.id}')">Delete</button>
+        </div>
+      </div>`;
+    });
     el.innerHTML=html;
-  }else{ el.style.display='none'; }
+  }else el.style.display='none';
 };
-window.delItem=async(restId,itemId)=>{ if(!confirm('Delete this food post?'))return; await deleteDoc(doc(db,'restaurants',restId,'menu',itemId)); alert('Deleted'); document.getElementById('menu-'+restId).style.display='none'; };
-load(); setInterval(load,15000);
+
+window.updatePrice=async(restId,itemId)=>{
+  const newPrice=document.getElementById('price-'+itemId).value;
+  if(!newPrice) return alert('Enter price');
+  await updateDoc(doc(db,'restaurants',restId,'menu',itemId),{price:Number(newPrice),priceUpdatedBy:'admin',priceUpdatedAt:new Date()});
+  alert('Price updated to '+newPrice+' by admin UID');
+};
+
+window.delItem=async(restId,itemId)=>{
+  if(!confirm('Delete this food post?'))return;
+  await deleteDoc(doc(db,'restaurants',restId,'menu',itemId));
+  alert('Deleted by admin'); document.getElementById('menu-'+restId).style.display='none';
+};
+
+// --- MESSAGE/NOTE TO RESTAURANT ---
+window.toggleMsg=async id=>{
+  const el=document.getElementById('msg-'+id);
+  el.style.display = el.style.display==='none'? 'block' : 'none';
+  if(el.style.display==='block'){ loadNotes(id); }
+};
+
+window.sendNote=async(restId, ownerEmail)=>{
+  const note=document.getElementById('note-'+restId).value.trim();
+  if(!note) return alert('Write message');
+  await addDoc(collection(db,'restaurants',restId,'adminMessages'),{
+    message: note,
+    from: 'admin',
+    fromUid: auth.currentUser.uid,
+    fromEmail: auth.currentUser.email,
+    toOwnerEmail: ownerEmail,
+    createdAt: new Date(),
+    read: false
+  });
+  // Also update restaurant doc with last note for partner to see easily
+  await updateDoc(doc(db,'restaurants',restId),{lastAdminNote: note, lastAdminNoteAt: new Date()});
+  alert('Note sent to restaurant! Partner will see it in partner774.html');
+  document.getElementById('note-'+restId).value='';
+  loadNotes(restId);
+};
+
+async function loadNotes(restId){
+  const snap=await getDocs(query(collection(db,'restaurants',restId,'adminMessages'), orderBy('createdAt','desc')));
+  const el=document.getElementById('prevNotes-'+restId);
+  if(snap.empty){ el.innerHTML='<i>No previous notes</i>'; return; }
+  let html='<b>Previous notes:</b><br>';
+  snap.forEach(d=>{ const m=d.data(); html+=`<div class="note-box">${m.message} <br><small>${m.fromEmail} - ${m.createdAt?.toDate?.()?.toLocaleString?.()||''}</small></div>`; });
+  el.innerHTML=html;
+}
 </script>
 </body>
 </html>
