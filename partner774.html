@@ -11,20 +11,54 @@
 .btn-red{background:#d33}.btn-gray{background:#eee;color:#333}.btn-orange{background:#FF6B35}
 .tabs{display:flex;gap:6px;overflow:auto;margin:10px 0}.tab{padding:9px 14px;border-radius:20px;border:1px solid #0B4D2E;background:#fff;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600}
 .tab.active{background:#0B4D2E;color:#fff}
-.item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;gap:8px}
-.msg{background:#FFF8E1;padding:10px 35px 10px 10px;border-radius:10px;margin:6px 0;border-left:4px solid #FF9800;position:relative}
 .badge{background:#FF6B35;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px}
 input,select{width:100%;padding:11px;margin:6px 0;border-radius:9px;border:1px solid #ccc;font-size:14px}
 label{font-size:12px;font-weight:800;margin-top:8px;display:block}
+.item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;gap:8px}
+.msg{background:#FFF8E1;padding:10px 35px 10px 10px;border-radius:10px;margin:6px 0;border-left:4px solid #FF9800;position:relative}
 </style>
 </head>
 <body>
 <div class="top">GoBite UG - Partner Portal</div>
-<div id="loginBox" class="card" style="margin-top:30px;text-align:center">
-<h2 style="margin:0">Partner Login</h2><p style="font-size:12px;color:#666">Login to continue</p>
-<input id="loginEmail" type="email" placeholder="Email"><input id="loginPass" type="password" placeholder="Password">
-<button class="btn" id="loginBtn" onclick="doLogin()">🔑 Login</button><div id="loginMsg" style="font-size:12px;color:red;margin-top:8px"></div>
+
+<!-- AUTH BOX - LOGIN + SIGNUP -->
+<div id="loginBox" class="card" style="margin-top:20px">
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button id="tabLogin" class="tab active" style="flex:1" onclick="switchAuth('login')">🔑 Login</button>
+    <button id="tabSignup" class="tab" style="flex:1" onclick="switchAuth('signup')">📝 Sign Up</button>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div id="loginForm">
+    <h3 style="margin:0 0 6px 0">Partner Login</h3>
+    <input id="loginEmail" type="email" placeholder="Email">
+    <input id="loginPass" type="password" placeholder="Password">
+    <button class="btn" id="loginBtn" onclick="doLogin()">🔑 Login</button>
+    <div id="loginMsg" style="font-size:12px;color:red;margin-top:8px"></div>
+  </div>
+
+  <!-- SIGNUP FORM -->
+  <div id="signupForm" style="display:none">
+    <h3 style="margin:0 0 6px 0">Create Partner Account</h3>
+    <input id="suName" placeholder="Restaurant Name e.g Sanel Restaurant">
+    <input id="suPhone" placeholder="Phone 07xxxxxxxx">
+    <input id="suEmail" type="email" placeholder="Email">
+    <input id="suPass" type="password" placeholder="Password (min 6 chars)">
+    <input id="suArea" placeholder="Area e.g Wakiso, Kampala">
+    <select id="suCategory">
+      <option value="">-- Restaurant Category --</option>
+      <option>Fast Food</option><option>Shawarma & Grills</option><option>Chicken & Chips</option>
+      <option>Pizza & Burgers</option><option>Local Food</option><option>Coffee Shop</option>
+      <option>Ice Cream & Desserts</option><option>Drinks & Juices</option><option>Bakery</option>
+      <option>Restaurant</option><option>Bar & Grill</option><option>Pork Joint</option>
+    </select>
+    <button class="btn" id="signupBtn" onclick="doSignup()">📝 Create Account</button>
+    <div id="signupMsg" style="font-size:12px;color:red;margin-top:8px"></div>
+    <small style="font-size:10px;color:#888">After signup, admin will approve you then you can login</small>
+  </div>
 </div>
+
+<!-- MAIN PORTAL -->
 <div id="mainPortal" style="display:none">
 <div style="padding:8px 2px;display:flex;justify-content:space-between"><span id="userEmail" style="font-size:11px;color:#666"></span><button onclick="logout()" style="border:none;background:#eee;padding:6px 12px;border-radius:7px;font-size:12px">Logout</button></div>
 <div id="statusBox" class="card"><h3 id="restStatus" style="margin:0">Checking...</h3><div id="restInfo" style="font-size:12px;color:#666;margin-top:4px"></div></div>
@@ -44,139 +78,86 @@ label{font-size:12px;font-weight:800;margin-top:8px;display:block}
 <div id="menuList" style="display:none">
 <div class="card">
 <h3 style="margin:0 0 8px 0">🍔 Add Menu Item - 75 Categories</h3>
-<input id="itemName" placeholder="Item name e.g Shawrama, Cappuccino">
+<input id="itemName" placeholder="Item name e.g Cappuccino">
 <select id="itemCategory">
-<option value="">-- Select Food Category (75) --</option>
-<option value="Shawarma">1. Shawarma</option>
-<option value="Chicken">2. Chicken</option>
-<option value="Burgers">3. Burgers</option>
-<option value="Pizza">4. Pizza</option>
-<option value="Fast Food">5. Fast Food</option>
-<option value="Local Food">6. Local Food</option>
-<option value="Matooke">7. Matooke</option>
-<option value="Luwombo">8. Luwombo</option>
-<option value="Posho">9. Posho / Ugali</option>
-<option value="Katogo">10. Katogo</option>
-<option value="Kikomando">11. Kikomando</option>
-<option value="Rolex">12. Rolex</option>
-<option value="Chapati">13. Chapati</option>
-<option value="Pilau">14. Pilau</option>
-<option value="Biryani">15. Biryani</option>
-<option value="Fried Rice">16. Fried Rice</option>
-<option value="Rice">17. Rice Dishes</option>
-<option value="Grills">18. Grills / BBQ</option>
-<option value="Muchomo">19. Muchomo</option>
-<option value="Beef">20. Beef</option>
-<option value="Goat">21. Goat</option>
-<option value="Pork">22. Pork</option>
-<option value="Fish">23. Fish / Tilapia</option>
-<option value="Seafood">24. Seafood</option>
-<option value="Pasta">25. Pasta</option>
-<option value="Noodles">26. Noodles</option>
-<option value="Indian">27. Indian</option>
-<option value="Chinese">28. Chinese</option>
-<option value="Arabian">29. Arabian</option>
-<option value="Kebabs">30. Kebabs</option>
-<option value="Wraps">31. Wraps</option>
-<option value="Sandwiches">32. Sandwiches</option>
-<option value="Salads">33. Salads</option>
-<option value="Soups">34. Soups</option>
-<option value="Vegetarian">35. Vegetarian</option>
-<option value="Vegan">36. Vegan</option>
-<option value="Snacks">37. Snacks</option>
-<option value="Samosa">38. Samosa</option>
-<option value="Mandazi">39. Mandazi</option>
-<option value="Donuts">40. Donuts</option>
-<option value="Bakery">41. Bakery / Bread</option>
-<option value="Cakes">42. Cakes</option>
-<option value="Desserts">43. Desserts</option>
-<option value="Ice Cream">44. Ice Cream</option>
-<option value="Gelato">45. Gelato</option>
-<option value="Coffee">46. Coffee - General</option>
-<option value="Espresso">47. Espresso</option>
-<option value="Cappuccino">48. Cappuccino</option>
-<option value="Latte">49. Latte</option>
-<option value="Americano">50. Americano</option>
-<option value="Mocha">51. Mocha</option>
-<option value="Macchiato">52. Macchiato</option>
-<option value="Cold Brew">53. Cold Brew / Iced Coffee</option>
-<option value="Tea">54. Tea</option>
-<option value="Chai">55. Chai / African Tea</option>
-<option value="Milk Tea">56. Milk Tea / Bubble Tea</option>
-<option value="Drinks">57. Drinks / Sodas</option>
-<option value="Fresh Juice">58. Fresh Juice</option>
-<option value="Smoothies">59. Smoothies</option>
-<option value="Milkshakes">60. Milkshakes</option>
-<option value="Lemonade">61. Lemonade</option>
-<option value="Energy Drinks">62. Energy Drinks</option>
-<option value="Water">63. Water</option>
-<option value="Beers">64. Beers</option>
-<option value="Wines">65. Wines</option>
-<option value="Cocktails">66. Cocktails</option>
-<option value="Breakfast">67. Breakfast</option>
-<option value="Lunch Combo">68. Lunch Combo</option>
-<option value="Family Meals">69. Family Meals</option>
-<option value="Kids Meals">70. Kids Meals</option>
-<option value="Sides">71. Sides - Chips, Fries</option>
-<option value="Sauces">72. Sauces & Extras</option>
-<option value="Offals">73. Offals - Liver</option>
-<option value="Continental">74. Continental</option>
-<option value="Others">75. Others</option>
+<option value="">-- Select Category (75) --</option>
+<option value="Shawarma">1. Shawarma</option><option value="Chicken">2. Chicken</option><option value="Burgers">3. Burgers</option><option value="Pizza">4. Pizza</option><option value="Fast Food">5. Fast Food</option><option value="Local Food">6. Local Food</option><option value="Matooke">7. Matooke</option><option value="Luwombo">8. Luwombo</option><option value="Posho">9. Posho</option><option value="Katogo">10. Katogo</option><option value="Kikomando">11. Kikomando</option><option value="Rolex">12. Rolex</option><option value="Chapati">13. Chapati</option><option value="Pilau">14. Pilau</option><option value="Biryani">15. Biryani</option><option value="Fried Rice">16. Fried Rice</option><option value="Rice">17. Rice</option><option value="Grills">18. Grills / BBQ</option><option value="Muchomo">19. Muchomo</option><option value="Beef">20. Beef</option><option value="Goat">21. Goat</option><option value="Pork">22. Pork</option><option value="Fish">23. Fish</option><option value="Seafood">24. Seafood</option><option value="Pasta">25. Pasta</option><option value="Noodles">26. Noodles</option><option value="Indian">27. Indian</option><option value="Chinese">28. Chinese</option><option value="Arabian">29. Arabian</option><option value="Kebabs">30. Kebabs</option><option value="Wraps">31. Wraps</option><option value="Sandwiches">32. Sandwiches</option><option value="Salads">33. Salads</option><option value="Soups">34. Soups</option><option value="Vegetarian">35. Vegetarian</option><option value="Vegan">36. Vegan</option><option value="Snacks">37. Snacks</option><option value="Samosa">38. Samosa</option><option value="Mandazi">39. Mandazi</option><option value="Donuts">40. Donuts</option><option value="Bakery">41. Bakery</option><option value="Cakes">42. Cakes</option><option value="Desserts">43. Desserts</option><option value="Ice Cream">44. Ice Cream</option><option value="Gelato">45. Gelato</option><option value="Coffee">46. Coffee</option><option value="Espresso">47. Espresso</option><option value="Cappuccino">48. Cappuccino</option><option value="Latte">49. Latte</option><option value="Americano">50. Americano</option><option value="Mocha">51. Mocha</option><option value="Macchiato">52. Macchiato</option><option value="Cold Brew">53. Cold Brew / Iced Coffee</option><option value="Tea">54. Tea</option><option value="Chai">55. Chai</option><option value="Milk Tea">56. Milk Tea / Bubble Tea</option><option value="Drinks">57. Drinks / Sodas</option><option value="Fresh Juice">58. Fresh Juice</option><option value="Smoothies">59. Smoothies</option><option value="Milkshakes">60. Milkshakes</option><option value="Lemonade">61. Lemonade</option><option value="Energy Drinks">62. Energy Drinks</option><option value="Water">63. Water</option><option value="Beers">64. Beers</option><option value="Wines">65. Wines</option><option value="Cocktails">66. Cocktails</option><option value="Breakfast">67. Breakfast</option><option value="Lunch Combo">68. Lunch Combo</option><option value="Family Meals">69. Family Meals</option><option value="Kids Meals">70. Kids Meals</option><option value="Sides">71. Sides - Chips</option><option value="Sauces">72. Sauces</option><option value="Offals">73. Offals</option><option value="Continental">74. Continental</option><option value="Others">75. Others</option>
 </select>
-<input id="itemPrice" type="number" placeholder="Price UGX"><input id="itemDesc" placeholder="Description e.g Large Shawarma with chips">
-<label>Food Image</label><input type="file" id="itemImageFile" accept="image/*">
-<img id="itemPrev" style="width:100%;height:120px;object-fit:cover;border-radius:8px;display:none;margin-top:6px;background:#eee">
+<input id="itemPrice" type="number" placeholder="Price UGX"><input id="itemDesc" placeholder="Description">
+<label>Food Image</label><input type="file" id="itemImageFile" accept="image/*"><img id="itemPrev" style="width:100%;height:120px;object-fit:cover;border-radius:8px;display:none;margin-top:6px;background:#eee">
 <button class="btn" id="addItemBtn" onclick="addMenuItem()">➕ Add to Menu</button><div id="itemStatus" style="font-size:11px;color:green"></div>
 </div><div id="myMenuItems"></div>
 </div>
 <div id="profileBox" style="display:none">
-<div class="card"><h3 style="margin-top:0">🏪 Restaurant Profile</h3>
-<input id="pName" placeholder="Restaurant Name"><input id="pPhone" placeholder="Phone 07...">
-<label>Restaurant Category</label>
-<select id="pCategory">
-<option value="">-- Select Category --</option>
-<option value="Fast Food">Fast Food</option>
-<option value="Shawarma & Grills">Shawarma & Grills</option>
-<option value="Chicken & Chips">Chicken & Chips</option>
-<option value="Pizza & Burgers">Pizza & Burgers</option>
-<option value="Local Food">Local Food Restaurant</option>
-<option value="Coffee Shop">Coffee Shop - Cafe</option>
-<option value="Ice Cream & Desserts">Ice Cream & Desserts</option>
-<option value="Drinks & Juices">Drinks & Juices Shop</option>
-<option value="Bakery">Bakery</option>
-<option value="Restaurant">Restaurant</option>
-<option value="Hotel">Hotel</option>
-<option value="Bar & Grill">Bar & Grill</option>
-<option value="Pork Joint">Pork Joint</option>
-<option value="Indian">Indian</option>
-<option value="Chinese">Chinese</option>
-<option value="Others">Others</option>
-</select>
-<input id="pArea" placeholder="Area e.g Wakiso">
-<label>Logo</label><img id="logoPrev" style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:#eee;display:none;border:2px solid #0B4D2E"><input type="file" id="logoFile" accept="image/*">
+<div class="card"><h3>🏪 Restaurant Profile</h3>
+<input id="pName" placeholder="Restaurant Name"><input id="pPhone" placeholder="Phone">
+<select id="pCategory"><option value="">-- Category --</option><option>Fast Food</option><option>Shawarma & Grills</option><option>Chicken & Chips</option><option>Pizza & Burgers</option><option>Local Food</option><option>Coffee Shop</option><option>Ice Cream & Desserts</option><option>Drinks & Juices</option><option>Bakery</option><option>Restaurant</option><option>Bar & Grill</option></select>
+<input id="pArea" placeholder="Area"><label>Logo</label><img id="logoPrev" style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:#eee;display:none;border:2px solid #0B4D2E"><input type="file" id="logoFile" accept="image/*">
 <label>Cover</label><img id="coverPrev" style="width:100%;height:110px;border-radius:10px;object-fit:cover;background:#eee;display:none"><input type="file" id="coverFile" accept="image/*">
-<button class="btn btn-gray" onclick="getGPS()">📍 Get My GPS</button><div id="gpsText" style="font-size:12px;color:#666">📍 Not set</div>
-<button class="btn" id="saveBtn" onclick="saveProfile()">💾 Save Restaurant</button><div id="saveStatus" style="font-size:11px;color:green;margin-top:6px"></div>
+<button class="btn btn-gray" onclick="getGPS()">📍 Get GPS</button><div id="gpsText" style="font-size:12px;color:#666">📍 Not set</div>
+<button class="btn" id="saveBtn" onclick="saveProfile()">💾 Save</button><div id="saveStatus" style="font-size:11px;color:green"></div>
 </div></div></div>
 <audio id="ding" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getFirestore, collection, doc, query, where, onSnapshot, updateDoc, deleteDoc, addDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, query, where, onSnapshot, updateDoc, deleteDoc, addDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
 const app=initializeApp(firebaseConfig); const db=getFirestore(app); const auth=getAuth(app); const storage=getStorage(app);
 let curUser=null, allOrders=[], curFilter='all', unsubOrders=null, unsubMsgs=null, newLogoUrl=null, newCoverUrl=null, currentLat=null, currentLng=null, newItemImageUrl=null;
-window.doLogin=async()=>{ const email=loginEmail.value.trim(); const pass=loginPass.value.trim(); if(!email||!pass){ loginMsg.innerText='Enter email & password'; return; } loginBtn.innerText='⏳ Logging in...'; loginBtn.disabled=true; try{ await signInWithEmailAndPassword(auth,email,pass); }catch(e){ loginMsg.innerText='❌ '+e.message; loginBtn.innerText='🔑 Login'; loginBtn.disabled=false; } };
-onAuthStateChanged(auth, async(u)=>{ if(!u){ loginBox.style.display='block'; mainPortal.style.display='none'; return; } curUser=u; loginBox.style.display='none'; mainPortal.style.display='block'; userEmail.innerText=u.email; const snap=await getDoc(doc(db,'restaurants',u.uid)); if(!snap.exists()){ restStatus.innerText='❌ No restaurant'; return; } const r=snap.data(); restStatus.innerHTML=`✅ ${r.name} - ${r.status}`; restInfo.innerText=`${r.category||''} | ${r.area||''}`; pName.value=r.name||''; pPhone.value=r.phone||''; pCategory.value=r.category||''; pArea.value=r.area||''; gpsText.innerText=r.lat?`📍 ${r.lat}, ${r.lng}`:'📍 Not set'; if(r.logoUrl){ logoPrev.src=r.logoUrl; logoPrev.style.display='block'; } if(r.coverUrl){ coverPrev.src=r.coverUrl; coverPrev.style.display='block'; } if(r.lat){ currentLat=r.lat; currentLng=r.lng; } saveStatus.innerText='Status: '+r.status; listenOrders(); listenAdminMsgs(); listenMyMenu(); });
+
+window.switchAuth=(type)=>{
+  if(type==='login'){ loginForm.style.display='block'; signupForm.style.display='none'; tabLogin.classList.add('active'); tabSignup.classList.remove('active'); }
+  else{ loginForm.style.display='none'; signupForm.style.display='block'; tabSignup.classList.add('active'); tabLogin.classList.remove('active'); }
+};
+
+window.doLogin=async()=>{
+  const email=loginEmail.value.trim(); const pass=loginPass.value.trim();
+  if(!email||!pass){ loginMsg.innerText='Enter email & password'; return; }
+  loginBtn.innerText='⏳ Logging in...'; loginBtn.disabled=true; loginMsg.innerText='';
+  try{ await signInWithEmailAndPassword(auth,email,pass); }catch(e){ loginMsg.innerText='❌ '+e.message; loginBtn.innerText='🔑 Login'; loginBtn.disabled=false; }
+};
+
+window.doSignup=async()=>{
+  const name=suName.value.trim(), phone=suPhone.value.trim(), email=suEmail.value.trim(), pass=suPass.value.trim(), area=suArea.value.trim(), cat=suCategory.value;
+  if(!name||!phone||!email||!pass||!area){ signupMsg.innerText='Fill all fields'; return; }
+  if(pass.length<6){ signupMsg.innerText='Password min 6 chars'; return; }
+  signupBtn.innerText='⏳ Creating...'; signupBtn.disabled=true; signupMsg.innerText=''; signupMsg.style.color='green'; signupMsg.innerText='Creating account...';
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,pass);
+    await setDoc(doc(db,'restaurants',cred.user.uid),{
+      name, phone, email, area, category:cat, status:'pending',
+      createdAt:serverTimestamp(), lat:null, lng:null, logoUrl:'', coverUrl:''
+    });
+    signupMsg.style.color='green'; signupMsg.innerText='✅ Account created! Waiting for admin approval. Now login.';
+    setTimeout(()=>switchAuth('login'),1500);
+  }catch(e){ signupMsg.style.color='red'; signupMsg.innerText='❌ '+e.message; }
+  signupBtn.innerText='📝 Create Account'; signupBtn.disabled=false;
+};
+
+onAuthStateChanged(auth, async(u)=>{
+  if(!u){ loginBox.style.display='block'; mainPortal.style.display='none'; return; }
+  curUser=u; loginBox.style.display='none'; mainPortal.style.display='block'; userEmail.innerText=u.email;
+  const snap=await getDoc(doc(db,'restaurants',u.uid));
+  if(!snap.exists()){ restStatus.innerText='❌ No restaurant doc - contact admin'; return; }
+  const r=snap.data(); restStatus.innerHTML=`${r.status==='approved'?'✅':'⏳'} ${r.name} - ${r.status}`; restInfo.innerText=`${r.category||''} | ${r.area||''}`;
+  pName.value=r.name||''; pPhone.value=r.phone||''; pCategory.value=r.category||''; pArea.value=r.area||'';
+  gpsText.innerText=r.lat?`📍 ${r.lat}, ${r.lng}`:'📍 Not set';
+  if(r.logoUrl){ logoPrev.src=r.logoUrl; logoPrev.style.display='block'; }
+  if(r.coverUrl){ coverPrev.src=r.coverUrl; coverPrev.style.display='block'; }
+  if(r.lat){ currentLat=r.lat; currentLng=r.lng; }
+  saveStatus.innerText='Status: '+r.status; listenOrders(); listenAdminMsgs(); listenMyMenu();
+});
+
 function listenAdminMsgs(){ if(unsubMsgs) unsubMsgs(); unsubMsgs=onSnapshot(collection(db,'restaurants',curUser.uid,'adminMessages'),(snap)=>{ const box=document.getElementById('adminBox'); const list=document.getElementById('adminMsgs'); const count=document.getElementById('msgCount'); if(snap.empty){ box.style.display='none'; return; } box.style.display='block'; count.innerText=snap.size; let html=''; snap.forEach(d=>{ const m={id:d.id,...d.data()}; const date=m.createdAt?.toDate?.()?.toLocaleString()||''; html+=`<div class="msg"><b>${m.from||'Admin'}:</b> ${m.text}<br><small>${date}</small><button onclick="dismissMsg('${m.id}')" style="position:absolute;top:6px;right:6px;border:none;background:#d33;color:#fff;border-radius:50%;width:24px;height:24px;font-weight:900;cursor:pointer">×</button></div>`; }); list.innerHTML=html; }); }
 window.dismissMsg=async(id)=>{ if(!confirm('Delete?')) return; await deleteDoc(doc(db,'restaurants',curUser.uid,'adminMessages',id)); };
-function listenOrders(){ if(unsubOrders) unsubOrders(); const q=query(collection(db,'orders'), where('restId','==',curUser.uid)); unsubOrders=onSnapshot(q, async(snap)=>{ const hadNew=snap.docChanges().some(c=>c.type==='added' && c.doc.data().status==='new'); allOrders=[]; snap.forEach(d=>allOrders.push({id:d.id,...d.data()})); allOrders.sort((a,b)=>{ const at=a.createdAt?.toMillis?.()||0; const bt=b.createdAt?.toMillis?.()||0; return bt-at; }); oCount.innerText=allOrders.filter(o=>o.status==='new').length; allOrders.forEach(async o=>{ if(o.status==='rejected'){ const age=Date.now()-(o.updatedAt?.toMillis?.()||o.createdAt?.toMillis?.()||0); if(age>5*60*1000) await deleteDoc(doc(db,'orders',o.id)).catch(()=>{}); } }); if(hadNew){ document.getElementById('ding').play().catch(()=>{}); } renderOrders(); }); }
-function renderOrders(){ let list=[]; if(curFilter==='all'){ list=allOrders.filter(o=>['accepted','ready','completed'].includes(o.status)); }else{ list=allOrders.filter(o=>o.status===curFilter); } if(list.length===0){ ordersList.innerHTML=`<div class="card" style="text-align:center;color:#888;padding:20px">No ${curFilter} orders</div>`; return; } ordersList.innerHTML=list.map(o=>{ const itemsHtml=(o.items||[]).map(i=>`<div class="item"><span style="display:flex;align-items:center;gap:7px"><img src="${i.imageUrl||''}" style="width:38px;height:38px;border-radius:7px;object-fit:cover;background:#eee"> ${i.name} x${i.qty}</span><span>UGX ${(i.price*i.qty).toLocaleString()}</span></div>`).join(''); const tel=(o.customerPhone||'').replace(/\s/g,''); const waTel=tel.startsWith('0')?'256'+tel.slice(1):tel; return `<div class="card" style="border-left:4px solid ${o.status==='new'?'#FF6B35':o.status==='completed'?'#4CAF50':'#0B4D2E'}"><div style="display:flex;justify-content:space-between"><b>#${o.orderNumber||o.id.slice(-6).toUpperCase()}</b><span class="badge" style="background:${o.status==='new'?'#FF6B35':o.status==='completed'?'#4CAF50':'#0B4D2E'}">${o.status.toUpperCase()}</span></div><div style="font-size:12px;margin:6px 0">👤 ${o.customerName}<br>📞 ${o.customerPhone}<br>📍 ${o.customerAddress}</div><div style="background:#f9f9f9;padding:6px;border-radius:9px">${itemsHtml}<div style="text-align:right;font-weight:800;margin-top:6px">Total: UGX ${(o.total||0).toLocaleString()}</div></div><div style="display:flex;gap:6px;margin-top:10px">${o.status==='new'?`<button class="btn" style="flex:1" onclick="updateOrder('${o.id}','accepted')">✅ Accept</button><button class="btn btn-red" style="flex:1" onclick="updateOrder('${o.id}','rejected')">❌ Reject</button>`:o.status==='accepted'?`<button class="btn btn-orange" style="flex:1" onclick="updateOrder('${o.id}','ready')">🍳 Ready</button><button class="btn" style="flex:1" onclick="updateOrder('${o.id}','completed')">✅ Completed</button>`:o.status==='ready'?`<button class="btn" style="flex:1" onclick="updateOrder('${o.id}','completed')">✅ Completed</button>`:`<div style="flex:1;text-align:center;color:#4CAF50;font-weight:700">✅ In History</div>`}</div><a href="tel:${tel}" class="btn btn-gray" style="background:#E8F5E9;color:#0B4D2E;font-weight:800;margin-top:6px">📞 Call</a><a href="https://wa.me/${waTel}" target="_blank" class="btn" style="background:#25D366">💬 WhatsApp</a></div>`; }).join(''); }
+function listenOrders(){ if(unsubOrders) unsubOrders(); const q=query(collection(db,'orders'), where('restId','==',curUser.uid)); unsubOrders=onSnapshot(q, async(snap)=>{ const hadNew=snap.docChanges().some(c=>c.type==='added' && c.doc.data().status==='new'); allOrders=[]; snap.forEach(d=>allOrders.push({id:d.id,...d.data()})); allOrders.sort((a,b)=>{ const at=a.createdAt?.toMillis?.()||0; const bt=b.createdAt?.toMillis?.()||0; return bt-at; }); oCount.innerText=allOrders.filter(o=>o.status==='new').length; if(hadNew){ document.getElementById('ding').play().catch(()=>{}); } renderOrders(); }); }
+function renderOrders(){ let list=[]; if(curFilter==='all'){ list=allOrders.filter(o=>['accepted','ready','completed'].includes(o.status)); }else{ list=allOrders.filter(o=>o.status===curFilter); } if(list.length===0){ ordersList.innerHTML=`<div class="card" style="text-align:center;color:#888">No ${curFilter} orders</div>`; return; } ordersList.innerHTML=list.map(o=>{ const itemsHtml=(o.items||[]).map(i=>`<div class="item"><span style="display:flex;align-items:center;gap:7px"><img src="${i.imageUrl||''}" style="width:38px;height:38px;border-radius:7px;object-fit:cover;background:#eee"> ${i.name} x${i.qty}</span><span>UGX ${(i.price*i.qty).toLocaleString()}</span></div>`).join(''); const tel=(o.customerPhone||'').replace(/\s/g,''); const waTel=tel.startsWith('0')?'256'+tel.slice(1):tel; return `<div class="card" style="border-left:4px solid ${o.status==='new'?'#FF6B35':o.status==='completed'?'#4CAF50':'#0B4D2E'}"><div style="display:flex;justify-content:space-between"><b>#${o.orderNumber||o.id.slice(-6).toUpperCase()}</b><span class="badge">${o.status.toUpperCase()}</span></div><div style="font-size:12px;margin:6px 0">👤 ${o.customerName}<br>📞 ${o.customerPhone}<br>📍 ${o.customerAddress}</div><div style="background:#f9f9f9;padding:6px;border-radius:9px">${itemsHtml}<div style="text-align:right;font-weight:800;margin-top:6px">Total: UGX ${(o.total||0).toLocaleString()}</div></div><div style="display:flex;gap:6px;margin-top:10px">${o.status==='new'?`<button class="btn" style="flex:1" onclick="updateOrder('${o.id}','accepted')">✅ Accept</button><button class="btn btn-red" style="flex:1" onclick="updateOrder('${o.id}','rejected')">❌ Reject</button>`:o.status==='accepted'?`<button class="btn btn-orange" style="flex:1" onclick="updateOrder('${o.id}','ready')">🍳 Ready</button><button class="btn" style="flex:1" onclick="updateOrder('${o.id}','completed')">✅ Completed</button>`:o.status==='ready'?`<button class="btn" style="flex:1" onclick="updateOrder('${o.id}','completed')">✅ Completed</button>`:`<div style="flex:1;text-align:center;color:#4CAF50;font-weight:700">✅ In History</div>`}</div><a href="tel:${tel}" class="btn btn-gray" style="background:#E8F5E9;color:#0B4D2E">📞 Call</a><a href="https://wa.me/${waTel}" target="_blank" class="btn" style="background:#25D366">💬 WhatsApp</a></div>`; }).join(''); }
 window.filterOrders=(f,btn)=>{ curFilter=f; document.querySelectorAll('#orderFilter.tab').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); renderOrders(); }
 window.updateOrder=async(id,status)=>{ await updateDoc(doc(db,'orders',id),{status, updatedAt:serverTimestamp()}); }
-logoFile.addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; logoPrev.style.display='block'; logoPrev.src=URL.createObjectURL(file); saveBtn.innerText='⏳ Uploading logo...'; saveBtn.disabled=true; const r=ref(storage,`restaurants/${curUser.uid}/logo_${Date.now()}_${file.name}`); await uploadBytes(r,file); newLogoUrl=await getDownloadURL(r); saveBtn.innerText='💾 Save'; saveBtn.disabled=false; });
-coverFile.addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; coverPrev.style.display='block'; coverPrev.src=URL.createObjectURL(file); saveBtn.innerText='⏳ Uploading cover...'; saveBtn.disabled=true; const r=ref(storage,`restaurants/${curUser.uid}/cover_${Date.now()}_${file.name}`); await uploadBytes(r,file); newCoverUrl=await getDownloadURL(r); saveBtn.innerText='💾 Save'; saveBtn.disabled=false; });
+logoFile.addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; logoPrev.style.display='block'; logoPrev.src=URL.createObjectURL(file); saveBtn.innerText='⏳ Uploading...'; saveBtn.disabled=true; const r=ref(storage,`restaurants/${curUser.uid}/logo_${Date.now()}_${file.name}`); await uploadBytes(r,file); newLogoUrl=await getDownloadURL(r); saveBtn.innerText='💾 Save'; saveBtn.disabled=false; });
+coverFile.addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; coverPrev.style.display='block'; coverPrev.src=URL.createObjectURL(file); saveBtn.innerText='⏳ Uploading...'; saveBtn.disabled=true; const r=ref(storage,`restaurants/${curUser.uid}/cover_${Date.now()}_${file.name}`); await uploadBytes(r,file); newCoverUrl=await getDownloadURL(r); saveBtn.innerText='💾 Save'; saveBtn.disabled=false; });
 itemImageFile.addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; itemPrev.style.display='block'; itemPrev.src=URL.createObjectURL(file); addItemBtn.innerText='⏳ Uploading...'; addItemBtn.disabled=true; const r=ref(storage,`restaurants/${curUser.uid}/menu_${Date.now()}_${file.name}`); await uploadBytes(r,file); newItemImageUrl=await getDownloadURL(r); addItemBtn.innerText='➕ Add to Menu'; addItemBtn.disabled=false; });
 window.getGPS=()=>{ gpsText.innerText='Getting GPS...'; navigator.geolocation.getCurrentPosition(pos=>{ currentLat=pos.coords.latitude; currentLng=pos.coords.longitude; gpsText.innerText=`📍 ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`; }); };
 window.saveProfile=async()=>{ const data={ name:pName.value.trim(), phone:pPhone.value.trim(), category:pCategory.value, area:pArea.value.trim(), updatedAt:serverTimestamp() }; if(newLogoUrl) data.logoUrl=newLogoUrl; if(newCoverUrl) data.coverUrl=newCoverUrl; if(currentLat){ data.lat=currentLat; data.lng=currentLng; } await updateDoc(doc(db,'restaurants',curUser.uid), data); alert('✅ Saved'); };
