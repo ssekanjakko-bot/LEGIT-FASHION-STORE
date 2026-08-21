@@ -20,61 +20,54 @@ label{font-size:12px;font-weight:800;margin-top:8px;display:block}
 </head>
 <body>
 <div class="top">GoBite UG - Partner Portal</div>
-<div style="padding:8px 2px;display:flex;justify-content:space-between"><span id="userEmail" style="font-size:11px;color:#666"></span><button onclick="logout()" style="border:none;background:#eee;padding:6px 12px;border-radius:7px;font-size:12px">Logout</button></div>
 
-<div id="statusBox" class="card"><h3 id="restStatus" style="margin:0">Checking...</h3><div id="restInfo" style="font-size:12px;color:#666;margin-top:4px"></div></div>
-
-<div id="adminBox" class="card" style="border:2px solid #FF9800;display:none">
-<h4 style="margin:0 0 8px 0;display:flex;justify-content:space-between">📩 Messages from Admin <span id="msgCount" class="badge">0</span></h4>
-<div id="adminMsgs"></div>
+<!-- LOGIN BOX - Shows first -->
+<div id="loginBox" class="card" style="margin-top:30px;text-align:center">
+  <h2 style="margin:0">Partner Login</h2>
+  <p style="font-size:12px;color:#666">Login to see your orders</p>
+  <input id="loginEmail" type="email" placeholder="Email e.g sanel@gmail.com">
+  <input id="loginPass" type="password" placeholder="Password">
+  <button class="btn" id="loginBtn" onclick="doLogin()">🔑 Login</button>
+  <div id="loginMsg" style="font-size:12px;color:red;margin-top:8px"></div>
+  <small style="color:#888;font-size:10px">This login stays inside this page - no redirect</small>
 </div>
 
-<div class="tabs">
-<button class="tab active" id="oTab" onclick="showTab('orders')">📦 Orders (<span id="oCount">0</span>)</button>
-<button class="tab" id="mTab" onclick="showTab('menu')">🍔 My Menu</button>
-<button class="tab" id="pTab" onclick="showTab('profile')">⚙️ Profile</button>
-</div>
-
-<div class="tabs" id="orderFilter">
-<button class="tab active" onclick="filterOrders('all', this)">📜 History</button>
-<button class="tab" onclick="filterOrders('new', this)">🆕 New</button>
-<button class="tab" onclick="filterOrders('accepted', this)">✅ Accepted</button>
-<button class="tab" onclick="filterOrders('completed', this)">✔️ Completed</button>
-</div>
-
-<div id="ordersList"></div>
-
-<div id="menuList" style="display:none">
-  <div class="card"><h3>🍔 Add Menu Item</h3>
-    <input id="itemName" placeholder="Item name">
-    <input id="itemPrice" type="number" placeholder="Price UGX">
-    <input id="itemDesc" placeholder="Description">
-    <label>Food Image</label>
-    <input type="file" id="itemImageFile" accept="image/*">
-    <img id="itemPrev" style="width:100%;height:120px;object-fit:cover;border-radius:8px;display:none;margin-top:6px;background:#eee">
-    <button class="btn" id="addItemBtn" onclick="addMenuItem()">➕ Add to Menu</button>
-    <div id="itemStatus" style="font-size:11px;color:green"></div>
+<!-- MAIN PORTAL - Hidden until login -->
+<div id="mainPortal" style="display:none">
+  <div style="padding:8px 2px;display:flex;justify-content:space-between"><span id="userEmail" style="font-size:11px;color:#666"></span><button onclick="logout()" style="border:none;background:#eee;padding:6px 12px;border-radius:7px;font-size:12px">Logout</button></div>
+  <div id="statusBox" class="card"><h3 id="restStatus" style="margin:0">Checking...</h3><div id="restInfo" style="font-size:12px;color:#666;margin-top:4px"></div></div>
+  <div id="adminBox" class="card" style="border:2px solid #FF9800;display:none">
+    <h4 style="margin:0 0 8px 0;display:flex;justify-content:space-between">📩 Messages from Admin <span id="msgCount" class="badge">0</span></h4>
+    <div id="adminMsgs"></div>
   </div>
-  <div id="myMenuItems"></div>
-</div>
-
-<div id="profileBox" style="display:none">
-  <div class="card">
-    <h3 style="margin-top:0">🏪 Restaurant Profile</h3>
-    <input id="pName" placeholder="Restaurant Name">
-    <input id="pPhone" placeholder="Phone 07...">
-    <input id="pCategory" placeholder="Category">
-    <input id="pArea" placeholder="Area e.g Wakiso">
-    <label>Logo (circle)</label>
-    <img id="logoPrev" style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:#eee;display:none;border:2px solid #0B4D2E">
-    <input type="file" id="logoFile" accept="image/*">
-    <label>Cover Image</label>
-    <img id="coverPrev" style="width:100%;height:110px;border-radius:10px;object-fit:cover;background:#eee;display:none">
-    <input type="file" id="coverFile" accept="image/*">
-    <button class="btn btn-gray" onclick="getGPS()">📍 Get My GPS</button>
-    <div id="gpsText" style="font-size:12px;color:#666">📍 Not set</div>
-    <button class="btn" id="saveBtn" onclick="saveProfile()">💾 Save Restaurant</button>
-    <div id="saveStatus" style="font-size:11px;color:green;margin-top:6px"></div>
+  <div class="tabs">
+    <button class="tab active" id="oTab" onclick="showTab('orders')">📦 Orders (<span id="oCount">0</span>)</button>
+    <button class="tab" id="mTab" onclick="showTab('menu')">🍔 My Menu</button>
+    <button class="tab" id="pTab" onclick="showTab('profile')">⚙️ Profile</button>
+  </div>
+  <div class="tabs" id="orderFilter">
+    <button class="tab active" onclick="filterOrders('all', this)">📜 History</button>
+    <button class="tab" onclick="filterOrders('new', this)">🆕 New</button>
+    <button class="tab" onclick="filterOrders('accepted', this)">✅ Accepted</button>
+    <button class="tab" onclick="filterOrders('completed', this)">✔️ Completed</button>
+  </div>
+  <div id="ordersList"></div>
+  <div id="menuList" style="display:none">
+    <div class="card"><h3>🍔 Add Menu Item</h3>
+      <input id="itemName" placeholder="Item name"><input id="itemPrice" type="number" placeholder="Price UGX"><input id="itemDesc" placeholder="Description">
+      <label>Food Image</label><input type="file" id="itemImageFile" accept="image/*">
+      <img id="itemPrev" style="width:100%;height:120px;object-fit:cover;border-radius:8px;display:none;margin-top:6px;background:#eee">
+      <button class="btn" id="addItemBtn" onclick="addMenuItem()">➕ Add to Menu</button><div id="itemStatus" style="font-size:11px;color:green"></div>
+    </div><div id="myMenuItems"></div>
+  </div>
+  <div id="profileBox" style="display:none">
+    <div class="card"><h3 style="margin-top:0">🏪 Restaurant Profile</h3>
+      <input id="pName" placeholder="Restaurant Name"><input id="pPhone" placeholder="Phone 07..."><input id="pCategory" placeholder="Category"><input id="pArea" placeholder="Area e.g Wakiso">
+      <label>Logo (circle)</label><img id="logoPrev" style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:#eee;display:none;border:2px solid #0B4D2E"><input type="file" id="logoFile" accept="image/*">
+      <label>Cover Image</label><img id="coverPrev" style="width:100%;height:110px;border-radius:10px;object-fit:cover;background:#eee;display:none"><input type="file" id="coverFile" accept="image/*">
+      <button class="btn btn-gray" onclick="getGPS()">📍 Get My GPS</button><div id="gpsText" style="font-size:12px;color:#666">📍 Not set</div>
+      <button class="btn" id="saveBtn" onclick="saveProfile()">💾 Save Restaurant</button><div id="saveStatus" style="font-size:11px;color:green;margin-top:6px"></div>
+    </div>
   </div>
 </div>
 
@@ -83,7 +76,7 @@ label{font-size:12px;font-weight:800;margin-top:8px;display:block}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import { getFirestore, collection, doc, query, where, onSnapshot, updateDoc, deleteDoc, addDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
 const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
@@ -91,11 +84,21 @@ const app=initializeApp(firebaseConfig); const db=getFirestore(app); const auth=
 
 let curUser=null, allOrders=[], curFilter='all', unsubOrders=null, unsubMsgs=null, newLogoUrl=null, newCoverUrl=null, currentLat=null, currentLng=null, newItemImageUrl=null;
 
+window.doLogin=async()=>{
+  const email=loginEmail.value.trim(); const pass=loginPass.value.trim();
+  if(!email||!pass){ loginMsg.innerText='Enter email & password'; return; }
+  loginBtn.innerText='⏳ Logging in...'; loginBtn.disabled=true; loginMsg.innerText='';
+  try{ await signInWithEmailAndPassword(auth,email,pass); }catch(e){ loginMsg.innerText='❌ '+e.message; loginBtn.innerText='🔑 Login'; loginBtn.disabled=false; }
+};
+
 onAuthStateChanged(auth, async(u)=>{
-  if(!u){ location.href='partner-login.html'; return; }
-  curUser=u; userEmail.innerText=u.email;
+  if(!u){
+    loginBox.style.display='block'; mainPortal.style.display='none'; loginBtn.innerText='🔑 Login'; loginBtn.disabled=false; return;
+  }
+  // LOGGED IN - show portal, hide login
+  curUser=u; loginBox.style.display='none'; mainPortal.style.display='block'; userEmail.innerText=u.email;
   const snap=await getDoc(doc(db,'restaurants',u.uid));
-  if(!snap.exists()){ restStatus.innerText='❌ No restaurant'; return; }
+  if(!snap.exists()){ restStatus.innerText='❌ No restaurant found for '+u.email; return; }
   const r=snap.data();
   restStatus.innerHTML=`${r.status==='approved'?'✅':'⏳'} ${r.name} - ${r.status}`;
   restInfo.innerText=`${r.category||''} | ${r.area||''}`;
@@ -106,7 +109,6 @@ onAuthStateChanged(auth, async(u)=>{
   if(r.lat){ currentLat=r.lat; currentLng=r.lng; }
   saveStatus.innerText='Status: '+r.status;
   listenOrders(); listenAdminMsgs(); listenMyMenu();
-  if(Notification && Notification.permission!=='granted') Notification.requestPermission();
 });
 
 function listenAdminMsgs(){
@@ -115,14 +117,10 @@ function listenAdminMsgs(){
     const box=document.getElementById('adminBox'); const list=document.getElementById('adminMsgs'); const count=document.getElementById('msgCount');
     if(snap.empty){ box.style.display='none'; return; }
     box.style.display='block'; count.innerText=snap.size;
-    let html=''; snap.forEach(d=>{
-      const m={id:d.id,...d.data()}; const date=m.createdAt?.toDate?.()?.toLocaleString()||'';
-      html+=`<div class="msg"><b>${m.from||'Admin'}:</b> ${m.text}<br><small>${m.toEmail||''} - ${date}</small><button onclick="dismissMsg('${m.id}')" style="position:absolute;top:6px;right:6px;border:none;background:#d33;color:#fff;border-radius:50%;width:24px;height:24px;font-weight:900;cursor:pointer">×</button></div>`;
-    }); list.innerHTML=html;
+    let html=''; snap.forEach(d=>{ const m={id:d.id,...d.data()}; const date=m.createdAt?.toDate?.()?.toLocaleString()||''; html+=`<div class="msg"><b>${m.from||'Admin'}:</b> ${m.text}<br><small>${m.toEmail||''} - ${date}</small><button onclick="dismissMsg('${m.id}')" style="position:absolute;top:6px;right:6px;border:none;background:#d33;color:#fff;border-radius:50%;width:24px;height:24px;font-weight:900;cursor:pointer">×</button></div>`; }); list.innerHTML=html;
   });
 }
 window.dismissMsg=async(id)=>{ if(!confirm('Delete this message?')) return; await deleteDoc(doc(db,'restaurants',curUser.uid,'adminMessages',id)); };
-
 function listenOrders(){
   if(unsubOrders) unsubOrders();
   const q=query(collection(db,'orders'), where('restId','==',curUser.uid));
@@ -131,31 +129,20 @@ function listenOrders(){
     allOrders=[]; snap.forEach(d=>allOrders.push({id:d.id,...d.data()}));
     allOrders.sort((a,b)=>{ const at=a.createdAt?.toMillis?.()||0; const bt=b.createdAt?.toMillis?.()||0; return bt-at; });
     oCount.innerText=allOrders.filter(o=>o.status==='new').length;
-    // Auto-delete rejected after 5 min
-    allOrders.forEach(async o=>{
-      if(o.status==='rejected'){
-        const age=Date.now()-(o.updatedAt?.toMillis?.()||o.createdAt?.toMillis?.()||0);
-        if(age>5*60*1000) await deleteDoc(doc(db,'orders',o.id)).catch(()=>{});
-      }
-    });
-    if(hadNew){ document.getElementById('ding').play().catch(()=>{}); if(Notification && Notification.permission==='granted') new Notification('New GoBite Order! '+allOrders[0]?.customerName); if(navigator.vibrate) navigator.vibrate([200,100,200]); }
+    allOrders.forEach(async o=>{ if(o.status==='rejected'){ const age=Date.now()-(o.updatedAt?.toMillis?.()||o.createdAt?.toMillis?.()||0); if(age>5*60*1000) await deleteDoc(doc(db,'orders',o.id)).catch(()=>{}); } });
+    if(hadNew){ document.getElementById('ding').play().catch(()=>{}); if(navigator.vibrate) navigator.vibrate([200,100,200]); }
     renderOrders();
   });
 }
 function renderOrders(){
-  let list=[];
-  if(curFilter==='all'){ list=allOrders.filter(o=>['accepted','ready','completed'].includes(o.status)); }
-  else{ list=allOrders.filter(o=>o.status===curFilter); }
-
-  if(list.length===0){ ordersList.innerHTML=`<div class="card" style="text-align:center;color:#888;padding:20px">${curFilter==='all'?'📜 No history yet<br><small>Only Accepted & Completed orders stay here</small>':`No ${curFilter} orders`}</div>`; return; }
-
+  let list=[]; if(curFilter==='all'){ list=allOrders.filter(o=>['accepted','ready','completed'].includes(o.status)); }else{ list=allOrders.filter(o=>o.status===curFilter); }
+  if(list.length===0){ ordersList.innerHTML=`<div class="card" style="text-align:center;color:#888;padding:20px">${curFilter==='all'?'📜 No history yet<br><small>Only Accepted & Completed stay here</small>':`No ${curFilter} orders`}</div>`; return; }
   ordersList.innerHTML=list.map(o=>{
-    const itemsHtml=(o.items||[]).map(i=>`<div class="item"><span style="display:flex;align-items:center;gap:7px"><img src="${i.imageUrl||''}" style="width:38px;height:38px;border-radius:7px;object-fit:cover;background:#eee"> ${i.name} x${i.qty}</span><span>UGX ${(i.price*i.qty).toLocaleString()} <small>(${i.price}×${i.qty})</small></span></div>`).join('');
-    const tel=(o.customerPhone||'').replace(/\s/g,'');
-    const waTel=tel.startsWith('0')?'256'+tel.slice(1):tel;
+    const itemsHtml=(o.items||[]).map(i=>`<div class="item"><span style="display:flex;align-items:center;gap:7px"><img src="${i.imageUrl||''}" style="width:38px;height:38px;border-radius:7px;object-fit:cover;background:#eee"> ${i.name} x${i.qty}</span><span>UGX ${(i.price*i.qty).toLocaleString()}</span></div>`).join('');
+    const tel=(o.customerPhone||'').replace(/\s/g,''); const waTel=tel.startsWith('0')?'256'+tel.slice(1):tel;
     return `<div class="card" style="border-left:4px solid ${o.status==='new'?'#FF6B35':o.status==='completed'?'#4CAF50':'#0B4D2E'}">
       <div style="display:flex;justify-content:space-between"><b>#${o.orderNumber||o.id.slice(-6).toUpperCase()}</b><span class="badge" style="background:${o.status==='new'?'#FF6B35':o.status==='completed'?'#4CAF50':'#0B4D2E'}">${o.status.toUpperCase()}</span></div>
-      <div style="font-size:12px;margin:6px 0;line-height:1.5">👤 ${o.customerName}<br>📞 ${o.customerPhone}<br>📍 ${o.customerAddress}<br>🕒 ${o.createdAt?.toDate?.()?.toLocaleString()||''}</div>
+      <div style="font-size:12px;margin:6px 0">👤 ${o.customerName}<br>📞 ${o.customerPhone}<br>📍 ${o.customerAddress}<br>🕒 ${o.createdAt?.toDate?.()?.toLocaleString()||''}</div>
       <div style="background:#f9f9f9;padding:6px;border-radius:9px">${itemsHtml}<div style="text-align:right;font-weight:800;margin-top:6px;border-top:1px dashed #ddd;padding-top:6px">Total: UGX ${(o.total||0).toLocaleString()} (${o.totalQty||0} items)</div></div>
       ${o.note?`<div style="font-size:11px;background:#FFF3CD;padding:6px;border-radius:7px;margin-top:6px">📝 ${o.note}</div>`:''}
       <div style="display:flex;gap:6px;margin-top:10px">
@@ -163,8 +150,8 @@ function renderOrders(){
         o.status==='accepted'?`<button class="btn btn-orange" style="flex:1" onclick="updateOrder('${o.id}','ready')">🍳 Ready</button><button class="btn" style="flex:1" onclick="updateOrder('${o.id}','completed')">✅ Completed</button>`:
         o.status==='ready'?`<button class="btn" style="flex:1" onclick="updateOrder('${o.id}','completed')">✅ Completed</button>`:`<div style="flex:1;text-align:center;font-size:12px;color:#4CAF50;font-weight:700;padding:8px">✅ In History</div>`}
       </div>
-      <a href="tel:${tel}" class="btn btn-gray" style="background:#E8F5E9;color:#0B4D2E;font-weight:800;margin-top:6px">📞 Call ${o.customerName?.split(' ')[0]||'Customer'} - ${o.customerPhone}</a>
-      <a href="https://wa.me/${waTel}" target="_blank" class="btn" style="background:#25D366">💬 WhatsApp Customer</a>
+      <a href="tel:${tel}" class="btn btn-gray" style="background:#E8F5E9;color:#0B4D2E;font-weight:800;margin-top:6px">📞 Call ${o.customerName?.split(' ')[0]||'Customer'}</a>
+      <a href="https://wa.me/${waTel}" target="_blank" class="btn" style="background:#25D366">💬 WhatsApp</a>
       ${o.status!=='new'?`<button onclick="deleteOrder('${o.id}')" style="width:100%;border:none;background:none;color:#999;font-size:11px;cursor:pointer;margin-top:4px">🗑️ Remove from history</button>`:''}
     </div>`;
   }).join('');
@@ -172,57 +159,16 @@ function renderOrders(){
 window.filterOrders=(f,btn)=>{ curFilter=f; document.querySelectorAll('#orderFilter.tab').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); renderOrders(); }
 window.updateOrder=async(id,status)=>{ await updateDoc(doc(db,'orders',id),{status, updatedAt:serverTimestamp()}); }
 window.deleteOrder=async(id)=>{ if(!confirm('Delete from history?')) return; await deleteDoc(doc(db,'orders',id)); }
-
-logoFile.addEventListener('change', async(e)=>{
-  const file=e.target.files[0]; if(!file) return;
-  logoPrev.style.display='block'; logoPrev.src=URL.createObjectURL(file);
-  saveBtn.innerText='⏳ Uploading logo...'; saveBtn.disabled=true;
-  const r=ref(storage,`restaurants/${curUser.uid}/logo_${Date.now()}_${file.name}`);
-  await uploadBytes(r,file); newLogoUrl=await getDownloadURL(r);
-  saveBtn.innerText='💾 Save Restaurant'; saveBtn.disabled=false; saveStatus.innerText='✅ Logo ready - Click Save';
-});
-coverFile.addEventListener('change', async(e)=>{
-  const file=e.target.files[0]; if(!file) return;
-  coverPrev.style.display='block'; coverPrev.src=URL.createObjectURL(file);
-  saveBtn.innerText='⏳ Uploading cover...'; saveBtn.disabled=true;
-  const r=ref(storage,`restaurants/${curUser.uid}/cover_${Date.now()}_${file.name}`);
-  await uploadBytes(r,file); newCoverUrl=await getDownloadURL(r);
-  saveBtn.innerText='💾 Save Restaurant'; saveBtn.disabled=false; saveStatus.innerText='✅ Cover ready - Click Save';
-});
-itemImageFile.addEventListener('change', async(e)=>{
-  const file=e.target.files[0]; if(!file) return;
-  itemPrev.style.display='block'; itemPrev.src=URL.createObjectURL(file);
-  addItemBtn.innerText='⏳ Uploading...'; addItemBtn.disabled=true;
-  const r=ref(storage,`restaurants/${curUser.uid}/menu_${Date.now()}_${file.name}`);
-  await uploadBytes(r,file); newItemImageUrl=await getDownloadURL(r);
-  addItemBtn.innerText='➕ Add to Menu'; addItemBtn.disabled=false; itemStatus.innerText='✅ Image ready';
-});
+logoFile.addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; logoPrev.style.display='block'; logoPrev.src=URL.createObjectURL(file); saveBtn.innerText='⏳ Uploading logo...'; saveBtn.disabled=true; const r=ref(storage,`restaurants/${curUser.uid}/logo_${Date.now()}_${file.name}`); await uploadBytes(r,file); newLogoUrl=await getDownloadURL(r); saveBtn.innerText='💾 Save Restaurant'; saveBtn.disabled=false; saveStatus.innerText='✅ Logo ready - Click Save'; });
+coverFile.addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; coverPrev.style.display='block'; coverPrev.src=URL.createObjectURL(file); saveBtn.innerText='⏳ Uploading cover...'; saveBtn.disabled=true; const r=ref(storage,`restaurants/${curUser.uid}/cover_${Date.now()}_${file.name}`); await uploadBytes(r,file); newCoverUrl=await getDownloadURL(r); saveBtn.innerText='💾 Save Restaurant'; saveBtn.disabled=false; saveStatus.innerText='✅ Cover ready - Click Save'; });
+itemImageFile.addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; itemPrev.style.display='block'; itemPrev.src=URL.createObjectURL(file); addItemBtn.innerText='⏳ Uploading...'; addItemBtn.disabled=true; const r=ref(storage,`restaurants/${curUser.uid}/menu_${Date.now()}_${file.name}`); await uploadBytes(r,file); newItemImageUrl=await getDownloadURL(r); addItemBtn.innerText='➕ Add to Menu'; addItemBtn.disabled=false; itemStatus.innerText='✅ Image ready'; });
 window.getGPS=()=>{ gpsText.innerText='Getting GPS...'; navigator.geolocation.getCurrentPosition(pos=>{ currentLat=pos.coords.latitude; currentLng=pos.coords.longitude; gpsText.innerText=`📍 ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`; }, err=>{ gpsText.innerText='GPS failed: '+err.message; }); };
-window.saveProfile=async()=>{
-  const data={ name:pName.value.trim(), phone:pPhone.value.trim(), category:pCategory.value.trim(), area:pArea.value.trim(), updatedAt:serverTimestamp() };
-  if(newLogoUrl) data.logoUrl=newLogoUrl; if(newCoverUrl) data.coverUrl=newCoverUrl; if(currentLat){ data.lat=currentLat; data.lng=currentLng; }
-  await updateDoc(doc(db,'restaurants',curUser.uid), data);
-  saveStatus.innerText='✅ Saved! Logo & cover live on customer app'; alert('✅ Profile saved!');
-};
-function listenMyMenu(){
-  onSnapshot(collection(db,'restaurants',curUser.uid,'menu'),(snap)=>{
-    let html=''; snap.forEach(d=>{ const it={id:d.id,...d.data()}; html+=`<div class="card" style="display:flex;gap:10px;align-items:center"><img src="${it.imageUrl||''}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;background:#eee"><div style="flex:1"><b>${it.name}</b><br><small>UGX ${it.price}</small></div><button onclick="deleteMenu('${it.id}')" style="border:none;background:#fee;color:#d33;padding:6px 10px;border-radius:7px">Delete</button></div>`; });
-    myMenuItems.innerHTML=html||'<div class="card" style="text-align:center;color:#888">No menu yet</div>';
-  });
-}
-window.addMenuItem=async()=>{
-  if(!itemName.value||!itemPrice.value){ alert('Add name & price'); return; }
-  await addDoc(collection(db,'restaurants',curUser.uid,'menu'),{ name:itemName.value.trim(), price:parseInt(itemPrice.value), description:itemDesc.value.trim(), imageUrl:newItemImageUrl||'', createdAt:serverTimestamp(), available:true });
-  itemName.value=''; itemPrice.value=''; itemDesc.value=''; itemPrev.style.display='none'; newItemImageUrl=null; itemStatus.innerText='✅ Added!';
-};
+window.saveProfile=async()=>{ const data={ name:pName.value.trim(), phone:pPhone.value.trim(), category:pCategory.value.trim(), area:pArea.value.trim(), updatedAt:serverTimestamp() }; if(newLogoUrl) data.logoUrl=newLogoUrl; if(newCoverUrl) data.coverUrl=newCoverUrl; if(currentLat){ data.lat=currentLat; data.lng=currentLng; } await updateDoc(doc(db,'restaurants',curUser.uid), data); saveStatus.innerText='✅ Saved!'; alert('✅ Profile saved!'); };
+function listenMyMenu(){ onSnapshot(collection(db,'restaurants',curUser.uid,'menu'),(snap)=>{ let html=''; snap.forEach(d=>{ const it={id:d.id,...d.data()}; html+=`<div class="card" style="display:flex;gap:10px;align-items:center"><img src="${it.imageUrl||''}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;background:#eee"><div style="flex:1"><b>${it.name}</b><br><small>UGX ${it.price}</small></div><button onclick="deleteMenu('${it.id}')" style="border:none;background:#fee;color:#d33;padding:6px 10px;border-radius:7px">Delete</button></div>`; }); myMenuItems.innerHTML=html||'<div class="card" style="text-align:center;color:#888">No menu yet</div>'; }); }
+window.addMenuItem=async()=>{ if(!itemName.value||!itemPrice.value){ alert('Add name & price'); return; } await addDoc(collection(db,'restaurants',curUser.uid,'menu'),{ name:itemName.value.trim(), price:parseInt(itemPrice.value), description:itemDesc.value.trim(), imageUrl:newItemImageUrl||'', createdAt:serverTimestamp(), available:true }); itemName.value=''; itemPrice.value=''; itemDesc.value=''; itemPrev.style.display='none'; newItemImageUrl=null; itemStatus.innerText='✅ Added!'; };
 window.deleteMenu=async(id)=>{ if(confirm('Delete item?')) await deleteDoc(doc(db,'restaurants',curUser.uid,'menu',id)); };
-window.showTab=(t)=>{
-  ordersList.style.display=t==='orders'?'block':'none'; orderFilter.style.display=t==='orders'?'flex':'none';
-  menuList.style.display=t==='menu'?'block':'none'; profileBox.style.display=t==='profile'?'block':'none';
-  document.querySelectorAll('.tabs.tab').forEach(b=>b.classList.remove('active'));
-  if(t==='orders') oTab.classList.add('active'); if(t==='menu') mTab.classList.add('active'); if(t==='profile') pTab.classList.add('active');
-};
-window.logout=()=>signOut(auth).then(()=>location.href='partner-login.html');
+window.showTab=(t)=>{ ordersList.style.display=t==='orders'?'block':'none'; orderFilter.style.display=t==='orders'?'flex':'none'; menuList.style.display=t==='menu'?'block':'none'; profileBox.style.display=t==='profile'?'block':'none'; document.querySelectorAll('.tabs.tab').forEach(b=>b.classList.remove('active')); if(t==='orders') oTab.classList.add('active'); if(t==='menu') mTab.classList.add('active'); if(t==='profile') pTab.classList.add('active'); };
+window.logout=()=>signOut(auth).then(()=>{ location.reload(); });
 </script>
 </body>
 </html>
