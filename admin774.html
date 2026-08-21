@@ -7,17 +7,14 @@
 *{box-sizing:border-box;font-family:Arial}body{background:#f2f2f2;margin:0 auto;max-width:950px}
 .top{background:#0B4D2E;color:#fff;padding:14px;text-align:center;font-weight:700}
 .box{background:#fff;margin:10px;padding:15px;border-radius:12px}
-.tabs{display:flex;gap:5px;margin:10px;flex-wrap:wrap}.tab{flex:1;min-width:90px;padding:10px;border:none;border-radius:8px;cursor:pointer;background:#ddd;font-weight:700;font-size:12px}.tab.active{background:#0B4D2E;color:#fff}
+.tabs{display:flex;gap:5px;margin:10px;flex-wrap:wrap}.tab{flex:1;min-width:85px;padding:10px;border:none;border-radius:8px;cursor:pointer;background:#ddd;font-weight:700;font-size:11px}.tab.active{background:#0B4D2E;color:#fff}
 .card{border:1px solid #eee;border-radius:12px;padding:12px;margin:12px 0}
-.card-head{display:flex;gap:10px}
-.card img{width:70px;height:70px;object-fit:cover;border-radius:8px;background:#eee}
+.card-head{display:flex;gap:10px}.card img{width:70px;height:70px;object-fit:cover;border-radius:8px;background:#eee}
 .btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;margin:3px}
-.approve{background:#0B4D2E;color:#fff}.reject{background:#dc3545;color:#fff}.view{background:#eee}.edit{background:#ffc107}
+.approve{background:#0B4D2E;color:#fff}.reject{background:#dc3545;color:#fff}.view{background:#eee}
 .badge{padding:3px 6px;border-radius:5px;font-size:10px;font-weight:700}.pending{background:#fff3cd}.approved{background:#d4edda}
 input,textarea{width:100%;padding:8px;margin:4px 0;border:1px solid #ddd;border-radius:6px;font-size:13px}
-.menu-item{background:#fafafa;padding:8px;margin:5px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
-.price-edit{display:flex;gap:4px;align-items:center}
-.note-box{background:#fff3cd;padding:8px;border-radius:8px;margin-top:8px;font-size:12px}
+.menu-item{background:#fafafa;padding:8px;margin:5px 0;border-radius:8px}
 </style>
 </head>
 <body>
@@ -25,7 +22,6 @@ input,textarea{width:100%;padding:8px;margin:4px 0;border:1px solid #ddd;border-
 
 <div id="loginBox" class="box">
 <h3>🔒 Admin Login</h3>
-<p style="font-size:12px;color:#666">Only UID in rules can login. First login will show your UID to copy.</p>
 <input id="adminEmail" type="email" placeholder="Admin Email">
 <input id="adminPass" type="password" placeholder="Password">
 <button onclick="adminLogin()" style="width:100%;padding:10px;background:#0B4D2E;color:#fff;border:none;border-radius:8px;font-weight:700">Login</button>
@@ -42,36 +38,34 @@ input,textarea{width:100%;padding:8px;margin:4px 0;border:1px solid #ddd;border-
 <button id="tPending" class="tab active" onclick="setTab('pending')">Pending (<span id="cP">0</span>)</button>
 <button id="tApproved" class="tab" onclick="setTab('approved')">Approved (<span id="cA">0</span>)</button>
 <button id="tAll" class="tab" onclick="setTab('all')">All</button>
-<button id="tBanners" class="tab" onclick="setTab('banners')">🎯 Banners</button>
-<button id="tQuick" class="tab" onclick="setTab('quick')">⚡ Quick Bites (4)</button>
+<button id="tBanners" class="tab" onclick="setTab('banners')">🎯 Banners (7)</button>
+<button id="tQuick" class="tab" onclick="setTab('quick')">⚡ Quick Bites</button>
 <button id="tOrders" class="tab" onclick="setTab('orders')">📦 Orders</button>
 </div>
 
-<!-- OLD LIST -->
 <div class="box" id="boxList"><div id="list">Loading...</div></div>
 
-<!-- BANNERS SECTION - 7 MAX -->
 <div class="box" id="boxBanners" style="display:none">
-<h3>🎯 Banners - Home Top (Max 7)</h3>
-<p style="font-size:11px;color:#666">Uploads appear on index banner slider. Auto slides every 4 sec.</p>
-<input id="bText" placeholder="Banner text e.g. Order from favorite!">
-<input id="bImg" placeholder="Image URL (or Firebase Storage URL)">
-<button class="btn approve" onclick="addBanner()">+ Add Banner</button>
-<div id="bannerCount" style="font-size:12px;margin:8px 0"></div>
+<h3>🎯 Home Banners - Max 7 (Phone Upload)</h3>
+<p style="font-size:11px;color:#666">Pick image from phone gallery, add text, upload.</p>
+<input id="bText" placeholder="Banner text e.g. Order from your favorite restaurants!">
+<input id="bFile" type="file" accept="image/*">
+<img id="bPreview" style="width:100%;max-height:160px;object-fit:cover;border-radius:8px;display:none;margin:6px 0">
+<div id="uploadProgress" style="font-size:12px;color:#0B4D2E;font-weight:700;margin:4px 0"></div>
+<button id="btnAddBanner" class="btn approve" onclick="addBanner()" style="width:100%;padding:10px">+ Upload & Add Banner</button>
+<div id="bannerCount" style="font-size:12px;margin:8px 0;font-weight:700"></div>
 <div id="bannerList"></div>
 </div>
 
-<!-- QUICK BITES SECTION - 4 MAX -->
 <div class="box" id="boxQuick" style="display:none">
 <h3>⚡ Quick Bites - Choose Best 4 Restaurants</h3>
-<p style="font-size:11px;color:#666">Admin chooses which restaurants appear in Quick Bites on home. Max 4. You can change anytime.</p>
-<div id="quickChooseList"></div>
+<p style="font-size:11px;color:#666">Tick 4 restaurants to show in Quick Bites. You can change anytime. Max 4.</p>
+<div id="quickChooseList">Loading...</div>
 </div>
 
-<!-- ORDERS PER RESTAURANT -->
 <div class="box" id="boxOrders" style="display:none">
-<h3>📦 Orders Received by Each Restaurant</h3>
-<select id="orderRestSelect" onchange="loadOrders()" style="width:100%;padding:10px;border-radius:8px"><option value="">-- Select Restaurant to view orders --</option></select>
+<h3>📦 Orders Per Restaurant</h3>
+<select id="orderRestSelect" onchange="loadOrders()" style="width:100%;padding:10px;border-radius:8px"><option value="">-- Select Restaurant --</option></select>
 <div id="ordersList" style="margin-top:12px"></div>
 </div>
 
@@ -81,127 +75,131 @@ input,textarea{width:100%;padding:8px;margin:4px 0;border:1px solid #ddd;border-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, addDoc, query, orderBy, where, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
 const ADMIN_UIDS = ["PASTE_YOUR_ADMIN_UID_HERE_1","PASTE_YOUR_ADMIN_UID_HERE_2"];
 const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
 const app=initializeApp(firebaseConfig);
-const auth=getAuth(app); const db=getFirestore(app);
+const auth=getAuth(app); const db=getFirestore(app); const storage=getStorage(app);
 let all=[]; let tab='pending';
 
+const bFileEl = document.getElementById('bFile');
+const bPreviewEl = document.getElementById('bPreview');
+if(bFileEl){ bFileEl.addEventListener('change', e=>{ const f=e.target.files[0]; if(f){ bPreviewEl.src=URL.createObjectURL(f); bPreviewEl.style.display='block'; } }); }
+
 onAuthStateChanged(auth, async user=>{
-  const errEl=document.getElementById('loginErr'); const uidShow=document.getElementById('uidShow');
   if(user){
-    uidShow.style.display='block';
-    uidShow.innerHTML=`Your UID: <b>${user.uid}</b><br>Email: ${user.email}<br><br>Copy this UID and paste in:<br>1. Firestore Rules<br>2. ADMIN_UIDS array in this file`;
-    const isSetupMode = ADMIN_UIDS[0].includes("PASTE");
-    if(!isSetupMode &&!ADMIN_UIDS.includes(user.uid)){
-      errEl.style.display='block'; errEl.innerText=`Access Denied - UID ${user.uid} not admin. Add to rules.`; return;
-    }
-    document.getElementById('loginBox').style.display='none';
-    document.getElementById('adminContent').style.display='block';
-    document.getElementById('adminUid').innerText=user.uid;
-    document.getElementById('adminEmailShow').innerText=user.email;
-    load();
-    loadBanners(); loadQuickList(); loadRestForOrders();
-  }else{
-    document.getElementById('loginBox').style.display='block';
-    document.getElementById('adminContent').style.display='none';
-  }
+    uidShow.style.display='block'; uidShow.innerHTML=`UID: <b>${user.uid}</b><br>${user.email}`;
+    const isSetup=ADMIN_UIDS[0].includes("PASTE");
+    if(!isSetup &&!ADMIN_UIDS.includes(user.uid)){ loginErr.style.display='block'; loginErr.innerText='Access Denied'; return; }
+    loginBox.style.display='none'; adminContent.style.display='block'; adminUid.innerText=user.uid; adminEmailShow.innerText=user.email;
+    load(); loadBanners(); loadQuickList(); loadRestForOrders();
+  }else{ loginBox.style.display='block'; adminContent.style.display='none'; }
 });
 
-window.adminLogin=async()=>{ const e=adminEmail.value.trim(); const p=adminPass.value.trim(); const err=loginErr; err.style.display='none'; try{ await signInWithEmailAndPassword(auth,e,p); }catch(ex){ err.style.display='block'; err.innerText=ex.code+': '+ex.message; } };
+window.adminLogin=async()=>{ try{ await signInWithEmailAndPassword(auth, adminEmail.value.trim(), adminPass.value.trim()); }catch(ex){ loginErr.style.display='block'; loginErr.innerText=ex.message; } };
 window.logout=async()=>{ await signOut(auth); location.reload(); };
 
 async function load(){
-  try{
-    const snap=await getDocs(collection(db,'restaurants'));
-    all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()}));
-    all.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    document.getElementById('cP').innerText=all.filter(r=>r.status==='pending').length;
-    document.getElementById('cA').innerText=all.filter(r=>r.status==='approved').length;
-    render();
-  }catch(e){ document.getElementById('list').innerHTML=`<div style="color:red">Error: ${e.message}</div>`; }
+  const snap=await getDocs(collection(db,'restaurants'));
+  all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()}));
+  all.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  cP.innerText=all.filter(r=>r.status==='pending').length;
+  cA.innerText=all.filter(r=>r.status==='approved').length;
+  if(tab==='pending'||tab==='approved'||tab==='all') render();
 }
-
 function render(){
-  const list=document.getElementById('list');
+  const listEl=document.getElementById('list');
   let filtered=all; if(tab==='pending') filtered=all.filter(r=>r.status==='pending'); if(tab==='approved') filtered=all.filter(r=>r.status==='approved');
-  if(!filtered.length){ list.innerHTML='<p style="text-align:center;color:#888">No restaurants in this tab</p>'; return; }
-  list.innerHTML='';
-  filtered.forEach(r=>{
+  if(!filtered.length){ listEl.innerHTML='<p style="text-align:center;color:#888">No restaurants</p>'; return; }
+  listEl.innerHTML=''; filtered.forEach(r=>{
     const div=document.createElement('div'); div.className='card';
-    div.innerHTML=`
-      <div class="card-head"><img src="${r.coverUrl||r.logoUrl||'https://via.placeholder.com/70'}"><div style="flex:1"><div style="display:flex;justify-content:space-between"><b>${r.name||'Unnamed'}</b><span class="badge ${r.status}">${r.status}</span></div><div style="font-size:11px;color:#666">Owner: ${r.ownerEmail||''} | UID: ${r.ownerId||r.id}<br>📞 ${r.phone||''} | ${r.cuisine||''}<br>📍 ${r.address||''} ${r.isQuickBite?'<span style="background:#0B4D2E;color:#fff;padding:2px 5px;border-radius:4px">QUICK BITE</span>':''}</div></div></div>
-      <div style="margin-top:8px">
-        ${r.status==='pending'?`<button class="btn approve" onclick="approve('${r.id}')">✅ Approve</button>`:''}
-        ${r.status==='approved'?`<button class="btn reject" onclick="makePending('${r.id}')">⏸️ Revoke</button>`:''}
-        <button class="btn view" onclick="toggleMenu('${r.id}')">🍔 See Posts & Edit Price</button>
-        <button class="btn view" onclick="toggleMsg('${r.id}')">💬 Send Note</button>
-        <button class="btn view" onclick="viewOrders('${r.id}')">📦 View Orders</button>
-        <button class="btn view" style="color:red" onclick="delRest('${r.id}')">🗑️ Delete</button>
-      </div>
-      <div id="menu-${r.id}" style="display:none;margin-top:10px"></div>
-      <div id="msg-${r.id}" style="display:none;margin-top:10px;background:#fff8e1;padding:10px;border-radius:8px"><b>Send Note to ${r.name}</b><textarea id="note-${r.id}" placeholder="Your price is too high..."></textarea><button class="btn approve" onclick="sendNote('${r.id}','${r.ownerEmail||''}')">Send Note</button><div id="prevNotes-${r.id}" style="margin-top:8px;font-size:11px"></div></div>
-    `; list.appendChild(div);
+    div.innerHTML=`<div class="card-head"><img src="${r.coverUrl||r.logoUrl||'https://via.placeholder.com/70'}"><div style="flex:1"><div style="display:flex;justify-content:space-between"><b>${r.name}</b><span class="badge ${r.status}">${r.status}</span></div><div style="font-size:11px;color:#666">${r.ownerEmail||''}<br>📞 ${r.phone||''} | ${r.address||''} ${r.isQuickBite?'<span style="background:#0B4D2E;color:#fff;padding:2px 5px;border-radius:4px">QUICK BITE</span>':''}</div></div></div><div style="margin-top:8px">${r.status==='pending'?`<button class="btn approve" onclick="approve('${r.id}')">✅ Approve</button>`:''}<button class="btn view" onclick="toggleMenu('${r.id}')">🍔 Menu</button><button class="btn view" onclick="viewOrders('${r.id}')">📦 Orders</button><button class="btn view" style="color:red" onclick="delRest('${r.id}')">🗑️ Delete</button></div><div id="menu-${r.id}" style="display:none;margin-top:10px"></div>`;
+    listEl.appendChild(div);
   });
 }
-
 window.setTab=t=>{
-  tab=t;
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  const map={pending:'tPending',approved:'tApproved',all:'tAll',banners:'tBanners',quick:'tQuick',orders:'tOrders'};
-  if(map[t]) document.getElementById(map[t]).classList.add('active');
-  boxList.style.display = (t==='pending'||t==='approved'||t==='all')?'block':'none';
-  boxBanners.style.display = t==='banners'?'block':'none';
-  boxQuick.style.display = t==='quick'?'block':'none';
-  boxOrders.style.display = t==='orders'?'block':'none';
-  if(t!=='banners' && t!=='quick' && t!=='orders') render();
+  tab=t; document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  const idMap={pending:'tPending',approved:'tApproved',all:'tAll',banners:'tBanners',quick:'tQuick',orders:'tOrders'};
+  document.getElementById(idMap[t]).classList.add('active');
+  boxList.style.display=(t==='pending'||t==='approved'||t==='all')?'block':'none';
+  boxBanners.style.display=t==='banners'?'block':'none';
+  boxQuick.style.display=t==='quick'?'block':'none';
+  boxOrders.style.display=t==='orders'?'block':'none';
+  if(t==='pending'||t==='approved'||t==='all') render();
 };
-
-// --- YOUR OLD FUNCTIONS ---
-window.approve=async id=>{ await updateDoc(doc(db,'restaurants',id),{status:'approved',approvedByUid:auth.currentUser.uid,approvedAt:new Date()}); load(); };
-window.makePending=async id=>{ await updateDoc(doc(db,'restaurants',id),{status:'pending'}); load(); };
-window.delRest=async id=>{ if(!confirm('Delete restaurant permanently?'))return; await deleteDoc(doc(db,'restaurants',id)); load(); };
+window.approve=async id=>{ await updateDoc(doc(db,'restaurants',id),{status:'approved',approvedAt:new Date()}); load(); };
+window.delRest=async id=>{ if(!confirm('Delete restaurant?'))return; await deleteDoc(doc(db,'restaurants',id)); load(); };
 window.toggleMenu=async id=>{
   const el=document.getElementById('menu-'+id);
   if(el.style.display==='none'){
-    el.style.display='block'; el.innerHTML='Loading posts...';
+    el.style.display='block'; el.innerHTML='Loading...';
     const snap=await getDocs(collection(db,'restaurants',id,'menu'));
-    if(snap.empty){ el.innerHTML='<i>No food yet</i>'; return; }
-    let html=`<b>Posts (${snap.size}):</b>`; snap.forEach(d=>{ const m=d.data(); html+=`<div class="menu-item"><div><b>${m.name}</b><br><small>UGX ${m.price}</small></div><div class="price-edit"><input id="price-${d.id}" type="number" value="${m.price}" style="width:90px;padding:5px"><button class="btn edit" onclick="updatePrice('${id}','${d.id}')">Update</button><button class="btn reject" onclick="delItem('${id}','${d.id}')">Delete</button></div></div>`; }); el.innerHTML=html;
+    if(snap.empty){ el.innerHTML='No food posts'; return; }
+    let h=''; snap.forEach(d=>{ const m=d.data(); h+=`<div class="menu-item"><b>${m.name}</b> - UGX ${m.price}</div>`; }); el.innerHTML=h;
   }else el.style.display='none';
 };
-window.updatePrice=async(restId,itemId)=>{ const newPrice=document.getElementById('price-'+itemId).value; if(!newPrice) return alert('Enter price'); await updateDoc(doc(db,'restaurants',restId,'menu',itemId),{price:Number(newPrice),priceUpdatedBy:'admin'}); alert('Price updated'); };
-window.delItem=async(restId,itemId)=>{ if(!confirm('Delete this food?'))return; await deleteDoc(doc(db,'restaurants',restId,'menu',itemId)); alert('Deleted'); document.getElementById('menu-'+restId).style.display='none'; };
-window.toggleMsg=async id=>{ const el=document.getElementById('msg-'+id); el.style.display = el.style.display==='none'? 'block' : 'none'; if(el.style.display==='block'){ loadNotes(id); } };
-window.sendNote=async(restId, ownerEmail)=>{ const note=document.getElementById('note-'+restId).value.trim(); if(!note) return alert('Write message'); await addDoc(collection(db,'restaurants',restId,'adminMessages'),{message:note,from:'admin',fromUid:auth.currentUser.uid,fromEmail:auth.currentUser.email,toOwnerEmail:ownerEmail,createdAt:new Date(),read:false}); await updateDoc(doc(db,'restaurants',restId),{lastAdminNote:note,lastAdminNoteAt:new Date()}); alert('Note sent'); document.getElementById('note-'+restId).value=''; loadNotes(restId); };
-async function loadNotes(restId){ const snap=await getDocs(query(collection(db,'restaurants',restId,'adminMessages'), orderBy('createdAt','desc'))); const el=document.getElementById('prevNotes-'+restId); if(snap.empty){ el.innerHTML='<i>No previous notes</i>'; return; } let html='<b>Previous:</b><br>'; snap.forEach(d=>{ const m=d.data(); html+=`<div class="note-box">${m.message}<br><small>${m.fromEmail}</small></div>`; }); el.innerHTML=html; }
 
-// --- NEW: BANNERS 7 MAX ---
-function loadBanners(){ onSnapshot(collection(db,'banners'), snap=>{ bannerList.innerHTML=''; let count=snap.size; bannerCount.innerText=`Total: ${count}/7`; snap.forEach(d=>{ const b=d.data(); bannerList.innerHTML+=`<div style="display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #eee"><img src="${b.imageUrl}" style="width:60px;height:40px;object-fit:cover;border-radius:6px"><div style="flex:1"><b>${b.text}</b><br><small>${b.imageUrl.substring(0,40)}...</small></div><button class="btn reject" onclick="delBanner('${d.id}')">Delete</button></div>`; }); }); }
-window.addBanner=async()=>{ const snap=await getDocs(collection(db,'banners')); if(snap.size>=7) return alert('Max 7 banners reached. Delete one first.'); if(!bImg.value) return alert('Enter image URL'); await addDoc(collection(db,'banners'),{text:bText.value||'Order from your favorite restaurants!', imageUrl:bImg.value, active:true, createdAt:serverTimestamp()}); bText.value=''; bImg.value=''; };
-window.delBanner=async id=>{ if(!confirm('Delete banner?')) return; await deleteDoc(doc(db,'banners',id)); };
+// BANNERS - FILE FROM PHONE
+function loadBanners(){
+  onSnapshot(collection(db,'banners'), snap=>{
+    bannerList.innerHTML=''; bannerCount.innerText=`Total: ${snap.size} / 7`;
+    snap.forEach(d=>{
+      const b=d.data();
+      bannerList.innerHTML+=`<div style="display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #eee"><img src="${b.imageUrl}" style="width:70px;height:45px;object-fit:cover;border-radius:6px"><div style="flex:1;font-size:12px"><b>${b.text||''}</b></div><button class="btn reject" onclick="delBanner('${d.id}','${b.storagePath||''}')">Delete</button></div>`;
+    });
+  });
+}
+window.addBanner=async()=>{
+  const file=bFile.files[0]; if(!file) return alert('Pick image from phone first');
+  const snap=await getDocs(collection(db,'banners')); if(snap.size>=7) return alert('Max 7 banners reached. Delete one first.');
+  btnAddBanner.disabled=true; btnAddBanner.innerText='Uploading...';
+  const path=`banners/${Date.now()}_${file.name}`; const storageRef=ref(storage, path);
+  const task=uploadBytesResumable(storageRef, file);
+  task.on('state_changed', s=>{ const p=Math.round(s.bytesTransferred/s.totalBytes*100); uploadProgress.innerText=`Uploading ${p}%`; },
+    err=>{ alert(err.message); btnAddBanner.disabled=false; btnAddBanner.innerText='+ Upload & Add Banner'; },
+    async()=>{
+      const url=await getDownloadURL(task.snapshot.ref);
+      await addDoc(collection(db,'banners'),{text:bText.value||'Order from your favorite restaurants!', imageUrl:url, storagePath:path, active:true, createdAt:serverTimestamp()});
+      uploadProgress.innerText='✅ Uploaded!'; bText.value=''; bFile.value=''; bPreview.style.display='none'; btnAddBanner.disabled=false; btnAddBanner.innerText='+ Upload & Add Banner'; setTimeout(()=>uploadProgress.innerText='',2000);
+    }
+  );
+};
+window.delBanner=async(id,path)=>{ if(!confirm('Delete banner?')) return; await deleteDoc(doc(db,'banners',id)); if(path){ try{ await deleteObject(ref(storage,path)); }catch(e){} } };
 
-// --- NEW: QUICK BITES 4 MAX ---
-function loadQuickList(){ onSnapshot(query(collection(db,'restaurants'), where('status','==','approved')), snap=>{
-  let html=''; snap.forEach(d=>{ const r=d.data(); html+=`<label style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #eee;cursor:pointer"><input type="checkbox" ${r.isQuickBite?'checked':''} onchange="toggleQuick('${d.id}', this.checked)"> <img src="${r.logoUrl||r.coverUrl||''}" style="width:30px;height:30px;border-radius:50%;object-fit:cover"> ${r.name} ${r.isQuickBite?'<span style="background:#0B4D2E;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px">SELECTED</span>':''}</label>`; }); quickChooseList.innerHTML=html||'No approved restaurants';
-}); }
+// QUICK BITES 4 MAX
+function loadQuickList(){
+  onSnapshot(query(collection(db,'restaurants'), where('status','==','approved')), snap=>{
+    let html=''; snap.forEach(d=>{ const r=d.data(); html+=`<label style="display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #eee;cursor:pointer"><input type="checkbox" ${r.isQuickBite?'checked':''} onchange="toggleQuick('${d.id}', this.checked)"> <img src="${r.logoUrl||r.coverUrl||''}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;background:#eee"> ${r.name} ${r.isQuickBite?'<span style="background:#0B4D2E;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px">SELECTED</span>':''}</label>`; });
+    quickChooseList.innerHTML=html||'No approved restaurants yet';
+  });
+}
 window.toggleQuick=async(id, checked)=>{
   const snap=await getDocs(query(collection(db,'restaurants'), where('isQuickBite','==',true)));
-  if(checked && snap.size>=4){ alert('Max 4 Quick Bites allowed. Uncheck one first.'); loadQuickList(); return; }
+  if(checked && snap.size>=4){ alert('Max 4 Quick Bites allowed. Uncheck one first to add another.'); loadQuickList(); return; }
   await updateDoc(doc(db,'restaurants',id),{isQuickBite:checked});
 };
 
-// --- NEW: ORDERS PER RESTAURANT ---
-async function loadRestForOrders(){ const snap=await getDocs(collection(db,'restaurants')); let html='<option value="">-- Select Restaurant --</option>'; snap.forEach(d=>{ const r=d.data(); html+=`<option value="${d.id}">${r.name}</option>`; }); orderRestSelect.innerHTML=html; }
+// ORDERS PER RESTAURANT
+async function loadRestForOrders(){
+  const snap=await getDocs(collection(db,'restaurants'));
+  let html='<option value="">-- Select Restaurant to view orders --</option>';
+  snap.forEach(d=>{ html+=`<option value="${d.id}">${d.data().name}</option>`; });
+  orderRestSelect.innerHTML=html;
+}
 window.viewOrders=id=>{ setTab('orders'); orderRestSelect.value=id; loadOrders(); };
 window.loadOrders=async()=>{
   const restId=orderRestSelect.value; if(!restId) return ordersList.innerHTML='Select restaurant';
   ordersList.innerHTML='Loading orders...';
-  const q=query(collection(db,'orders'), where('restId','==',restId), orderBy('createdAt','desc'), limit(50));
-  const snap=await getDocs(q);
-  if(snap.empty){ ordersList.innerHTML='<p>No orders yet for this restaurant</p>'; return; }
-  let html=''; snap.forEach(d=>{ const o=d.data(); const date=o.createdAt?.toDate?.()?.toLocaleString()||''; html+=`<div class="card" style="background:#f9fff9"><b>Order ${d.id.substring(0,6)} - ${o.status}</b> - ${date}<br>Customer: ${o.customerName} | ${o.customerPhone}<br>Address: ${o.customerAddress}<br>Items: ${(o.items||[]).map(i=>`${i.name} x${i.qty}`).join(', ')}<br><b>Total: UGX ${(o.total||0).toLocaleString()}</b><br><button class="btn approve" onclick="updateOrderStatus('${d.id}','accepted')">Accept</button><button class="btn view" onclick="updateOrderStatus('${d.id}','delivered')">Delivered</button></div>`; }); ordersList.innerHTML=html;
+  try{
+    const q=query(collection(db,'orders'), where('restId','==',restId), orderBy('createdAt','desc'), limit(50));
+    const snap=await getDocs(q);
+    if(snap.empty){ ordersList.innerHTML='<p>No orders yet for this restaurant</p>'; return; }
+    let html=''; snap.forEach(d=>{
+      const o=d.data(); const date=o.createdAt?.toDate?.()?.toLocaleString()||'just now';
+      html+=`<div class="card" style="background:#f9fff9"><div style="display:flex;justify-content:space-between"><b>Order ${d.id.slice(0,6)}</b><span class="badge ${o.status==='new'?'pending':'approved'}">${o.status||'new'}</span></div><div style="font-size:12px;margin-top:6px">📅 ${date}<br>👤 ${o.customerName} | 📞 ${o.customerPhone}<br>📍 ${o.customerAddress}<br>🍔 ${(o.items||[]).map(i=>`${i.name} x${i.qty}`).join(', ')}<br><b style="color:#0B4D2E">Total: UGX ${(o.total||0).toLocaleString()}</b></div><div style="margin-top:6px"><button class="btn approve" onclick="updateOrderStatus('${d.id}','accepted')">Accept</button><button class="btn view" onclick="updateOrderStatus('${d.id}','delivered')">Delivered</button><button class="btn reject" onclick="updateOrderStatus('${d.id}','cancelled')">Cancel</button></div></div>`;
+    }); ordersList.innerHTML=html;
+  }catch(e){ ordersList.innerHTML='Error: '+e.message+'<br>Need index: orders where restId == and orderBy createdAt'; }
 };
 window.updateOrderStatus=async(orderId,status)=>{ await updateDoc(doc(db,'orders',orderId),{status}); alert('Order '+status); loadOrders(); };
 </script>
