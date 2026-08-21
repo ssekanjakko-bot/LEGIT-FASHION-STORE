@@ -4,129 +4,87 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>GoBite UG</title>
 <style>
-*{box-sizing:border-box;font-family:Arial, sans-serif}
-body{margin:0;background:#FFFBF2;padding-bottom:80px}
+*{box-sizing:border-box;font-family:Arial}body{margin:0;background:#FFFBF2;padding-bottom:80px}
 .top{background:#0F4D2B;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:30}
-.top b{font-size:20px}.top b span{color:#FFD700}
 .banner{position:relative;width:100%;height:165px;background:#000;overflow:hidden}
 .banner img{width:100%;height:100%;object-fit:cover}
-.banner-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-weight:900;font-size:22px;text-align:center;text-shadow:0 2px 8px #000;line-height:1.2;width:90%}
-.gps{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:10px 12px;font-size:13px;border-bottom:1px solid #eee}
-.gps button{background:#0F4D2B;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:700;font-size:12px}
-.title{text-align:center;font-weight:800;font-size:18px;margin:16px 0 10px}
+.banner-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5)}.dot.active{background:#fff}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 10px}
 .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #eee;cursor:pointer}
-.card img{width:100%;height:120px;object-fit:cover;background:#ddd;display:block}
-.card .name{text-align:center;font-weight:700;font-size:13px;padding:8px 4px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card .dist{text-align:center;font-size:11px;color:#666;padding:0 0 8px}
-.q-title{font-weight:800;font-size:15px;margin:18px 10px 8px}
+.card img{width:100%;height:120px;object-fit:cover;display:block;background:#ddd}
+.card.name{text-align:center;font-weight:700;font-size:13px;padding:8px 4px 2px}.card.dist{text-align:center;font-size:11px;color:#666;padding:0 0 8px}
 .q-scroll{display:flex;gap:10px;overflow:auto;padding:0 10px 10px}
-.q-card{min-width:110px;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #eee;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:pointer}
+.q-card{min-width:110px;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #eee;cursor:pointer}
 .q-card img{width:100%;height:70px;object-fit:cover;background:#fff}
-.q-card div{text-align:center;font-size:11px;font-weight:700;padding:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
 
-<div class="top"><b>GoBite <span>UG</span></b><div onclick="openCart()">🛒 <span id="cartCount">0</span></div></div>
+<div class="top"><b>GoBite <span style="color:#FFD700">UG</span></b><div onclick="openCart()">🛒 <span id="cartCount">0</span></div></div>
 
-<!-- HOME PAGE - SCREENSHOT 1 -->
 <div id="homePage">
-  <div class="banner"><img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800"><div class="banner-txt">Order from your<br>favorite restaurants!</div></div>
-  <div class="gps"><span>📍 <span id="gpsText">Near 0.317, 32.633</span></span><button onclick="enableGPS()">Enable GPS</button></div>
-  <div class="title">Select Restaurant</div>
-  <div id="restaurantsList" class="grid"><div style="grid-column:1/3;text-align:center;padding:20px;color:#888">Loading...</div></div>
-  <div class="q-title">Quick Bites</div>
-  <div id="quickBites" class="q-scroll"></div>
+<div class="banner" id="bannerBox"><img id="bannerImg" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800"><div id="bannerText" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-weight:900;font-size:22px;text-align:center;text-shadow:0 2px 8px #000">Order from your<br>favorite restaurants!</div><div class="banner-dots" id="bannerDots"></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#fff;padding:10px 12px;font-size:13px;border-bottom:1px solid #eee"><span>📍 <span id="gpsText">Near 0.317, 32.633</span></span><button onclick="enableGPS()" style="background:#0F4D2B;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:700;font-size:12px">Enable GPS</button></div>
+<div style="text-align:center;font-weight:800;font-size:18px;margin:16px 0 10px">Select Restaurant</div>
+<div id="restaurantsList" class="grid"></div>
+<div style="font-weight:800;font-size:15px;margin:18px 10px 8px">Quick Bites</div>
+<div id="quickBites" class="q-scroll"></div>
 </div>
 
-<!-- RESTAURANT PAGE - SCREENSHOT 2 -->
+<!-- RESTAURANT PAGE WITH CART UP -->
 <div id="restaurantPage" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#FFFBF2;z-index:50;overflow:auto;padding-bottom:90px">
-  <div style="background:#fff;padding:10px 12px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;border-bottom:1px solid #eee">
-    <button onclick="closeRestaurant()" style="background:#EAF2FF;border:none;padding:6px 14px;border-radius:20px;color:#3B82F6;font-weight:600">← Back</button>
-    <b id="restPageName" style="font-size:16px">Sanel</b>
-  </div>
-  <div style="width:100%;height:210px;background:#222;overflow:hidden"><img id="restCoverImg" style="width:100%;height:100%;object-fit:cover"></div>
-  <div style="padding:12px 12px 6px"><b id="restTitle" style="font-size:18px">Sanel</b><div id="restSub" style="font-size:12px;color:#777;margin-top:2px">Fast food • Wakiso • 0767483636</div></div>
-  <div style="padding:10px"><div style="font-weight:800;font-size:15px;margin:6px 0 10px">Quick Bites</div><div id="menuGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div></div>
+<div style="background:#fff;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;border-bottom:1px solid #eee">
+<div style="display:flex;align-items:center;gap:12px"><button onclick="closeRestaurant()" style="background:#EAF2FF;border:none;padding:6px 14px;border-radius:20px;color:#3B82F6;font-weight:600">← Back</button><b id="restPageName">Sanel</b></div>
+<div onclick="openCart()" style="font-weight:800;cursor:pointer">🛒 <span id="cartCount2">0</span></div>
+</div>
+<div style="width:100%;height:210px;background:#222;overflow:hidden"><img id="restCoverImg" style="width:100%;height:100%;object-fit:cover"></div>
+<div style="padding:12px 12px 6px"><b id="restTitle" style="font-size:18px"></b><div id="restSub" style="font-size:12px;color:#777;margin-top:2px"></div></div>
+<div style="padding:10px"><div style="font-weight:800;font-size:15px;margin:6px 0 10px">Quick Bites</div><div id="menuGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div></div>
 </div>
 
-<!-- CART -->
-<div id="cartBar" style="position:fixed;bottom:0;left:0;right:0;background:#0F4D2B;color:#fff;padding:12px;display:none;justify-content:space-between;align-items:center;z-index:40">
-  <span id="cartBarText">0 items</span><button onclick="openCart()" style="background:#FF6B35;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:800">View Cart</button>
-</div>
-<div id="cartModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:60;justify-content:center;align-items:center;padding:12px">
-  <div style="background:#fff;width:100%;max-width:400px;border-radius:14px;padding:14px;max-height:90vh;overflow:auto">
-    <h3 style="margin:0 0 10px">Cart</h3><div id="cartItems"></div>
-    <input id="custName" placeholder="Your Name" style="width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px">
-    <input id="custPhone" placeholder="Phone" style="width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px">
-    <input id="custAddress" placeholder="Address" style="width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px">
-    <div id="cartTotal" style="font-weight:800;margin:10px 0"></div>
-    <button onclick="placeOrder()" style="width:100%;padding:12px;background:#0F4D2B;color:#fff;border:none;border-radius:10px;font-weight:700">Place Order</button>
-    <button onclick="closeCart()" style="width:100%;padding:12px;background:#eee;border:none;border-radius:10px;margin-top:6px">Close</button>
-    <div id="orderMsg" style="font-size:12px;margin-top:6px"></div>
-  </div>
-</div>
+<div id="cartBar" style="position:fixed;bottom:0;left:0;right:0;background:#0F4D2B;color:#fff;padding:12px;display:none;justify-content:space-between;z-index:40"><span id="cartBarText"></span><button onclick="openCart()" style="background:#FF6B35;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:800">View Cart</button></div>
+<div id="cartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:60;justify-content:center;align-items:center;padding:12px"><div style="background:#fff;width:100%;max-width:400px;border-radius:14px;padding:14px;max-height:90vh;overflow:auto"><h3>Cart</h3><div id="cartItems"></div><input id="custName" placeholder="Your Name" style="width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px"><input id="custPhone" placeholder="Phone" style="width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px"><input id="custAddress" placeholder="Address" style="width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px"><div id="cartTotal" style="font-weight:800;margin:10px 0"></div><button onclick="placeOrder()" style="width:100%;padding:12px;background:#0F4D2B;color:#fff;border:none;border-radius:10px;font-weight:700">Place Order</button><button onclick="closeCart()" style="width:100%;padding:12px;background:#eee;border:none;border-radius:10px;margin-top:6px">Close</button><div id="orderMsg"></div></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getFirestore, collection, query, where, onSnapshot, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, getDocs, addDoc, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
 const app=initializeApp(firebaseConfig); const db=getFirestore(app);
-let allRests=[], currentRest=null, cart=[], userLat=0.317, userLng=32.633;
+let allRests=[], currentRest=null, cart=[], banners=[], bannerIndex=0, userLat=0.317, userLng=32.633;
+
+// BANNERS - 7 max from admin
+onSnapshot(query(collection(db,'banners'), where('active','==',true), limit(7)), snap=>{
+  banners=[]; snap.forEach(d=>banners.push(d.data()));
+  if(banners.length>0){ showBanner(0); setInterval(()=>{ bannerIndex=(bannerIndex+1)%banners.length; showBanner(bannerIndex); },4000); }
+});
+function showBanner(i){ if(!banners[i]) return; bannerImg.src=banners[i].imageUrl; bannerText.innerText=banners[i].text||'Order from your favorite restaurants!'; bannerDots.innerHTML=banners.map((_,idx)=>`<div class="dot ${idx===i?'active':''}"></div>`).join(''); }
 
 window.enableGPS=()=>{ navigator.geolocation.getCurrentPosition(p=>{ userLat=p.coords.latitude; userLng=p.coords.longitude; gpsText.innerText=`Near ${userLat.toFixed(3)}, ${userLng.toFixed(3)}`; render(allRests); }); };
-function distKm(lat1,lon1,lat2,lon2){ if(!lat2||!lon2) return 0; const R=6371; const dLat=(lat2-lat1)*Math.PI/180; const dLon=(lon2-lon1)*Math.PI/180; const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+function distKm(a,b,c,d){ if(!c) return 0; const R=6371; const dLat=(c-a)*Math.PI/180; const dLon=(d-b)*Math.PI/180; const x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
 
 function render(list){
-  if(userLat) list.sort((a,b)=> distKm(userLat,userLng,a.lat,a.lng)-distKm(userLat,userLng,b.lat,b.lng));
+  // Main grid
   document.getElementById('restaurantsList').innerHTML=list.map(r=>{
-    const img=r.coverUrl||r.logoUrl||'https://via.placeholder.com/300x120'; const d=r.lat?distKm(userLat,userLng,r.lat,r.lng).toFixed(1)+'km away':'0.0km away';
-    return `<div class="card" onclick="openRestaurant('${r.id}')"><img src="${img}" onerror="this.style.background='#ddd'"><div class="name">${r.name}</div><div class="dist">${d}</div></div>`;
+    const img=r.coverUrl||r.logoUrl||''; const d=r.lat?distKm(userLat,userLng,r.lat,r.lng).toFixed(1)+'km away':'0.0km away';
+    return `<div class="card" onclick="openRestaurant('${r.id}')"><img src="${img}"><div class="name">${r.name}</div><div class="dist">${d}</div></div>`;
   }).join('');
-  document.getElementById('quickBites').innerHTML=list.map(r=>{
-    const img=r.logoUrl||r.coverUrl||'https://via.placeholder.com/100'; return `<div class="q-card" onclick="openRestaurant('${r.id}')"><img src="${img}"><div>${r.name}</div></div>`;
-  }).join('');
+  // Quick Bites - only 4 chosen by admin
+  const quick = list.filter(r=>r.isQuickBite===true).slice(0,4);
+  document.getElementById('quickBites').innerHTML=quick.map(r=>`<div class="q-card" onclick="openRestaurant('${r.id}')"><img src="${r.logoUrl||r.coverUrl}"><div style="text-align:center;font-size:11px;font-weight:700;padding:6px">${r.name}</div></div>`).join('');
 }
 
 window.openRestaurant=async(id)=>{
-  currentRest=allRests.find(x=>x.id===id);
-  document.getElementById('restaurantPage').style.display='block';
-  document.getElementById('restPageName').innerText=currentRest.name;
-  document.getElementById('restTitle').innerText=currentRest.name;
-  document.getElementById('restSub').innerText=`${currentRest.category||'Fast food'} • ${currentRest.area||'Wakiso'} • ${currentRest.phone||''}`;
-  document.getElementById('restCoverImg').src=currentRest.coverUrl||currentRest.logoUrl||'https://via.placeholder.com/600x300';
-  const snap=await getDocs(collection(db,'restaurants',id,'menu')); let html='';
-  snap.forEach(d=>{ const m=d.data(); html+=`<div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #eee"><img src="${m.imageUrl||''}" style="width:100%;height:110px;object-fit:cover;background:#fff"><div style="padding:8px"><div style="font-weight:700;font-size:13px">${m.name}</div><div style="color:#FF6B35;font-weight:800;font-size:13px;margin:2px 0">UGX ${m.price}</div><button onclick="addToCart('${currentRest.id}','${d.id}','${m.name.replace(/'/g,'')}','${m.price}')" style="width:100%;background:#0F4D2B;color:#fff;border:none;padding:8px;border-radius:8px;font-size:12px;font-weight:700;margin-top:4px">Add to Cart</button></div></div>`; });
-  document.getElementById('menuGrid').innerHTML=html||'<div style="color:#888">No items yet</div>';
+  currentRest=allRests.find(x=>x.id===id); restaurantPage.style.display='block'; restPageName.innerText=currentRest.name; restTitle.innerText=currentRest.name; restSub.innerText=`${currentRest.category||'Fast food'} • ${currentRest.area||'Wakiso'} • ${currentRest.phone||''}`; restCoverImg.src=currentRest.coverUrl||currentRest.logoUrl||'';
+  const snap=await getDocs(collection(db,'restaurants',id,'menu')); let html=''; snap.forEach(d=>{ const m=d.data(); html+=`<div style="background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eee"><img src="${m.imageUrl||''}" style="width:100%;height:110px;object-fit:cover"><div style="padding:8px"><div style="font-weight:700;font-size:13px">${m.name}</div><div style="color:#FF6B35;font-weight:800;font-size:13px">UGX ${m.price}</div><button onclick="addToCart('${currentRest.id}','${d.id}','${m.name}',${m.price})" style="width:100%;background:#0F4D2B;color:#fff;border:none;padding:8px;border-radius:8px;font-size:12px;font-weight:700;margin-top:4px">Add to Cart</button></div></div>`; }); menuGrid.innerHTML=html||'No items';
 };
-window.closeRestaurant=()=>document.getElementById('restaurantPage').style.display='none';
+window.closeRestaurant=()=>restaurantPage.style.display='none';
+window.addToCart=(restId,menuId,name,price)=>{ if(cart.length&&cart[0].restId!==restId){ if(!confirm('Clear other restaurant cart?')) return; cart=[]; } const ex=cart.find(c=>c.menuId===menuId); if(ex) ex.qty++; else cart.push({restId,menuId,name,price:parseInt(price),qty:1}); updateCart(); };
+function updateCart(){ const c=cart.reduce((s,x)=>s+x.qty,0); const t=cart.reduce((s,x)=>s+x.price*x.qty,0); cartCount.innerText=c; cartCount2.innerText=c; if(c>0){ cartBar.style.display='flex'; cartBarText.innerText=`${c} items - UGX ${t}`; } else cartBar.style.display='none'; cartItems.innerHTML=cart.map(x=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee"><span>${x.name} x${x.qty}</span><span>UGX ${x.price*x.qty}</span></div>`).join(''); cartTotal.innerText='Total: UGX '+t; }
+window.openCart=()=>cartModal.style.display='flex'; window.closeCart=()=>cartModal.style.display='none';
+window.placeOrder=async()=>{ if(!custName.value||!custPhone.value||!custAddress.value) return orderMsg.innerText='Fill all fields'; const total=cart.reduce((s,x)=>s+x.price*x.qty,0); await addDoc(collection(db,'orders'),{restId:currentRest.id,restName:currentRest.name,customerName:custName.value,customerPhone:custPhone.value,customerAddress:custAddress.value,items:cart,total,status:'new',createdAt:serverTimestamp()}); orderMsg.innerText='✅ Order placed!'; cart=[]; updateCart(); setTimeout(()=>{closeCart(); closeRestaurant();},1200); };
 
-window.addToCart=(restId,menuId,name,price)=>{ 
-  if(cart.length && cart[0].restId!==restId){ if(!confirm('Clear cart from other restaurant?')) return; cart=[]; }
-  const ex=cart.find(c=>c.menuId===menuId); if(ex) ex.qty++; else cart.push({restId,menuId,name,price:parseInt(price),qty:1});
-  updateCart();
-};
-function updateCart(){
-  const count=cart.reduce((s,c)=>s+c.qty,0); const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
-  document.getElementById('cartCount').innerText=count;
-  if(count>0){ document.getElementById('cartBar').style.display='flex'; document.getElementById('cartBarText').innerText=`${count} items - UGX ${total.toLocaleString()}`; }
-  else document.getElementById('cartBar').style.display='none';
-  document.getElementById('cartItems').innerHTML=cart.map(c=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #eee"><span>${c.name} x${c.qty}</span><span>UGX ${(c.price*c.qty).toLocaleString()}</span></div>`).join('');
-  document.getElementById('cartTotal').innerText='Total: UGX '+total.toLocaleString();
-}
-window.openCart=()=>document.getElementById('cartModal').style.display='flex';
-window.closeCart=()=>document.getElementById('cartModal').style.display='none';
-window.placeOrder=async()=>{
-  if(!custName.value||!custPhone.value||!custAddress.value){ orderMsg.innerText='Fill name, phone, address'; return; }
-  const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
-  await addDoc(collection(db,'orders'),{restId:currentRest.id,restName:currentRest.name,customerName:custName.value,customerPhone:custPhone.value,customerAddress:custAddress.value,items:cart,total,status:'new',createdAt:serverTimestamp()});
-  orderMsg.innerText='✅ Order placed!'; cart=[]; updateCart(); setTimeout(()=>{closeCart(); closeRestaurant();},1500);
-};
-
-onSnapshot(query(collection(db,'restaurants'), where('status','==','approved')), snap=>{
-  allRests=[]; snap.forEach(d=>allRests.push({id:d.id,...d.data()})); render(allRests);
-});
+onSnapshot(query(collection(db,'restaurants'), where('status','==','approved')), snap=>{ allRests=[]; snap.forEach(d=>allRests.push({id:d.id,...d.data()})); render(allRests); });
 </script>
 </body>
 </html>
