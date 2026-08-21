@@ -1,49 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GoBite UG</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GoBite UG - Order Food</title>
 <style>
-*{box-sizing:border-box;font-family:Arial;margin:0}body{background:#FEF9F0;max-width:500px;margin:auto;padding-bottom:80px}
-.top{background:#0B4D2E;color:#fff;padding:12px 15px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:10}
-.hero{height:160px;background:url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600') center/cover;position:relative;display:flex;align-items:center;justify-content:center}
-.hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.5)} .hero h1{position:relative;color:#fff;text-align:center;z-index:1;font-size:21px}
-.gps{background:#fff;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;font-size:12px;box-shadow:0 2px 5px rgba(0,0,0,.05)}
-.btn-gps{background:#0B4D2E;color:#fff;border:none;padding:6px 12px;border-radius:20px;font-weight:700}
-.card{background:#fff;border-radius:14px;overflow:hidden;margin:10px;box-shadow:0 2px 10px rgba(0,0,0,.07);cursor:pointer}
-.card img{width:100%;height:130px;object-fit:cover;background:#eee} .info{padding:10px} .meta{font-size:11px;color:#666;display:flex;gap:8px}
-.dist{color:#0B4D2E;font-weight:700}
+*{box-sizing:border-box;font-family:Arial, sans-serif}
+body{margin:0;background:#FEF9F0;padding-bottom:80px}
+.top{background:#0B4D2E;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:30}
+.banner-wrap{position:relative;width:100%;height:170px;background:#000;overflow:hidden}
+.banner-wrap img{width:100%;height:100%;object-fit:cover;opacity:.9}
+.banner-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-weight:900;font-size:22px;text-align:center;text-shadow:0 2px 8px #000;line-height:1.2}
+.gps-bar{background:#fff;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;border-bottom:1px solid #eee}
+.section-title{text-align:center;font-weight:800;font-size:18px;margin:14px 0 8px 0}
+.rest-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.rest-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:pointer;border:1px solid #eee;transition:.15s}
+.rest-card:active{transform:scale(.97)}
+.rest-card img{width:100%;height:115px;object-fit:cover;display:block;background:#ddd}
+.rest-card .r-name{padding:8px 6px;text-align:center;font-weight:700;font-size:13px;background:#FFFDF5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rest-card .r-meta{font-size:10px;color:#0B4D2E;text-align:center;padding-bottom:6px}
+#restPage{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#FEF9F0;z-index:50;overflow:auto}
+.menu-card{display:flex;gap:10px;background:#fff;padding:10px;border-radius:12px;margin:8px 10px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.menu-card img{width:70px;height:70px;border-radius:10px;object-fit:cover;background:#eee}
+.btn{width:100%;padding:12px;background:#0B4D2E;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer}
+.cart-bar{position:fixed;bottom:0;left:0;right:0;background:#0B4D2E;color:#fff;padding:12px;display:flex;justify-content:space-between;align-items:center;z-index:40;display:none}
+.quick-bites{display:flex;gap:8px;overflow:auto;padding:10px}
+.quick-bites .q-card{min-width:110px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.quick-bites .q-card img{width:100%;height:70px;object-fit:cover}
+.quick-bites .q-card div{font-size:11px;font-weight:700;padding:5px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
-<div class="top"><h3>GoBite <span style="color:#FFD700">UG</span></h3><span onclick="location.href='cart.html'">🛒 <b id="cCount">0</b></span></div>
-<div class="hero"><h1>Order from your<br>favorite restaurants!</h1></div>
-<div class="gps"><span id="gpsT">📍 Locating you...</span><button class="btn-gps" onclick="getLoc()">Enable GPS</button></div>
-<div style="padding:10px"><h3 style="text-align:center">Select Restaurant</h3><div id="list">Loading approved...</div></div>
+
+<div class="top">
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-weight:900;font-size:20px">GoBite <span style="color:#FFD700">UG</span></span>
+  </div>
+  <div onclick="openCart()" style="cursor:pointer;font-weight:800">🛒 <span id="cartCount">0</span></div>
+</div>
+
+<!-- HOME PAGE -->
+<div id="homePage">
+  <div class="banner-wrap">
+    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800" alt="banner">
+    <div class="banner-text">Order from your<br>favorite restaurants!</div>
+  </div>
+
+  <div class="gps-bar">
+    <span>📍 <span id="gpsText">Near you</span></span>
+    <button onclick="enableGPS()" style="background:#0B4D2E;color:#fff;border:none;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700">Enable GPS</button>
+  </div>
+
+  <div class="section-title">Select Restaurant</div>
+  <div id="restaurantsList" class="rest-grid">
+    <div style="grid-column:1/3;text-align:center;padding:20px;color:#888">Loading restaurants...</div>
+  </div>
+
+  <div class="section-title" style="font-size:14px;text-align:left;padding-left:10px">Quick Bites</div>
+  <div id="quickBites" class="quick-bites"></div>
+</div>
+
+<!-- RESTAURANT MENU PAGE -->
+<div id="restPage">
+  <div class="top">
+    <span onclick="closeRest()" style="cursor:pointer">← Back</span>
+    <b id="restPageName">Restaurant</b>
+    <span></span>
+  </div>
+  <div id="restPageCover" style="width:100%;height:160px;background:#ddd"></div>
+  <div style="padding:10px"><h3 id="restPageTitle" style="margin:6px 0"></h3><div id="restPageInfo" style="font-size:12px;color:#666"></div></div>
+  <div id="menuList"></div>
+</div>
+
+<div id="cartBar" class="cart-bar">
+  <span id="cartBarText">0 items - UGX 0</span>
+  <button onclick="openCheckout()" style="background:#FF6B35;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:800">Checkout</button>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div id="checkoutModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:60;align-items:center;justify-content:center;padding:12px">
+  <div style="background:#fff;width:100%;max-width:420px;border-radius:16px;padding:16px;max-height:90vh;overflow:auto">
+    <h3 style="margin-top:0">Checkout</h3>
+    <div id="checkoutItems"></div>
+    <input id="custName" placeholder="Your Name" style="width:100%;padding:11px;margin:6px 0;border:1px solid #ccc;border-radius:9px">
+    <input id="custPhone" placeholder="Phone 07..." style="width:100%;padding:11px;margin:6px 0;border:1px solid #ccc;border-radius:9px">
+    <input id="custAddress" placeholder="Delivery Address e.g Kikoni" style="width:100%;padding:11px;margin:6px 0;border:1px solid #ccc;border-radius:9px">
+    <input id="custNote" placeholder="Note (optional)" style="width:100%;padding:11px;margin:6px 0;border:1px solid #ccc;border-radius:9px">
+    <div style="font-weight:800;margin:10px 0">Total: UGX <span id="checkoutTotal">0</span></div>
+    <button class="btn" onclick="placeOrder()">✅ Place Order - Cash on Delivery</button>
+    <button class="btn" style="background:#eee;color:#333;margin-top:6px" onclick="closeCheckout()">Cancel</button>
+    <div id="orderMsg" style="font-size:12px;margin-top:8px"></div>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
 const firebaseConfig={apiKey:"AIzaSyD03wRNk-iF3_0esTdYPEn4zzCGyjyYK88",authDomain:"gobite-ug.firebaseapp.com",projectId:"gobite-ug",storageBucket:"gobite-ug.firebasestorage.app",messagingSenderId:"479330891516",appId:"1:479330891516:web:dff4620fc3344a45b3c979"};
 const app=initializeApp(firebaseConfig); const db=getFirestore(app);
-let uLat=null,uLng=null; let cart=JSON.parse(localStorage.getItem('gobite_cart')||'[]'); document.getElementById('cCount').innerText=cart.length;
 
-window.getLoc=()=>{ navigator.geolocation.getCurrentPosition(p=>{uLat=p.coords.latitude;uLng=p.coords.longitude;document.getElementById('gpsT').innerText=`📍 Near ${uLat.toFixed(3)},${uLng.toFixed(3)}`;load();},()=>load()); };
-async function load(){
-  const snap=await getDocs(query(collection(db,'restaurants'),where('status','==','approved')));
-  let rests=[]; snap.forEach(d=>rests.push({id:d.id,...d.data()}));
-  rests.forEach(r=>{ r.dist = uLat ? calc(uLat,uLng,r.lat,r.lng) : 9999; }); rests.sort((a,b)=>a.dist-b.dist);
-  const list=document.getElementById('list');
-  if(rests.length==0){ list.innerHTML='<p style="text-align:center;color:#888;padding:20px">No approved restaurants.<br>Admin must approve in admin774.html</p>'; return; }
-  list.innerHTML='';
-  rests.forEach(r=>{
-    const d=document.createElement('div'); d.className='card'; d.onclick=()=>location.href=`restaurant.html?id=${r.id}`;
-    d.innerHTML=`<img src="${r.coverUrl||r.logoUrl||'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'}"><div class="info"><b>${r.name}</b><div class="meta"><span>${r.cuisine||'Restaurant'}</span><span class="dist">${r.dist<9999?r.dist.toFixed(1)+'km away':'View Menu'}</span></div><div style="font-size:11px;color:#999">${r.address||''}</div></div>`;
-    list.appendChild(d);
-  });
+let allRests=[], currentRest=null, cart=[], userLat=null, userLng=null;
+
+function enableGPS(){
+  navigator.geolocation.getCurrentPosition(pos=>{
+    userLat=pos.coords.latitude; userLng=pos.coords.longitude;
+    gpsText.innerText=`Near ${userLat.toFixed(3)}, ${userLng.toFixed(3)}`;
+    renderRestaurants(allRests);
+  }, err=>{ gpsText.innerText='GPS failed'; });
 }
-function calc(a,b,c,d){ const R=6371, dLat=(c-a)*Math.PI/180, dLon=(d-b)*Math.PI/180, x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
-getLoc();
+window.enableGPS=enableGPS;
+
+function distance(lat1,lon1,lat2,lon2){
+  if(!lat1||!lat2) return 9999;
+  const R=6371; const dLat=(lat2-lat1)*Math.PI/180; const dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function renderRestaurants(list){
+  // sort by distance if GPS available
+  if(userLat) list.sort((a,b)=> distance(userLat,userLng,a.lat,a.lng) - distance(userLat,userLng,b.lat,b.lng));
+  
+  const box=document.getElementById('restaurantsList');
+  if(!list.length){ box.innerHTML='<div style="grid-column:1/3;text-align:center;padding:20px;color:#888">No approved restaurants yet</div>'; return; }
+  
+  box.innerHTML = list.map(r=>{
+    const cover = r.coverUrl || r.logoUrl || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400';
+    const dist = userLat ? distance(userLat,userLng,r.lat,r.lng).toFixed(1)+'km away' : (r.area||'Restaurant');
+    return `
+      <div class="rest-card" onclick="openRestaurant('${r.id}')">
+        <img src="${cover}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x120?text=${encodeURIComponent(r.name)}'">
+        <div class="r-name">${r.name}</div>
+        <div class="r-meta">${dist}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Quick Bites - show random items
+  renderQuickBites(list);
+}
+
+function renderQuickBites(rests){
+  const qBox=document.getElementById('quickBites');
+  qBox.innerHTML = rests.slice(0,8).map(r=>{
+    const img = r.logoUrl || r.coverUrl || 'https://via.placeholder.com/200';
+    return `<div class="q-card" onclick="openRestaurant('${r.id}')"><img src="${img}"><div>${r.name}</div></div>`;
+  }).join('');
+}
+
+window.openRestaurant=async(id)=>{
+  const r=allRests.find(x=>x.id===id); if(!r) return;
+  currentRest=r;
+  restPage.style.display='block';
+  restPageName.innerText=r.name; restPageTitle.innerText=r.name;
+  restPageInfo.innerText=`${r.category||'Restaurant'} | ${r.area||''} | ${r.phone||''}`;
+  restPageCover.innerHTML=`<img src="${r.coverUrl||r.logoUrl||''}" style="width:100%;height:100%;object-fit:cover">`;
+  
+  // load menu
+  menuList.innerHTML='Loading menu...';
+  const snap=await getDocs(collection(db,'restaurants',id,'menu'));
+  let html=''; snap.forEach(d=>{
+    const m={id:d.id,...d.data()};
+    html+=`<div class="menu-card">
+      <img src="${m.imageUrl||''}" onerror="this.src='https://via.placeholder.com/100'">
+      <div style="flex:1"><b>${m.name}</b> <small style="background:#0B4D2E;color:#fff;padding:2px 6px;border-radius:6px;font-size:9px">${m.category||''}</small><br><small>${m.description||''}</small><br><b style="color:#0B4D2E">UGX ${m.price}</b></div>
+      <button onclick="addToCart('${r.id}','${m.id}','${m.name.replace(/'/g,"")}',${m.price},'${m.imageUrl||''}','${m.category||''}')" style="background:#FF6B35;color:#fff;border:none;padding:8px 12px;border-radius:20px;font-weight:800">+</button>
+    </div>`;
+  });
+  menuList.innerHTML=html || '<div style="text-align:center;padding:20px;color:#888">No menu yet</div>';
+};
+window.closeRest=()=>{ restPage.style.display='none'; };
+
+window.addToCart=(restId,menuId,name,price,image,category)=>{
+  if(cart.length && cart[0].restId!==restId){ if(!confirm('Cart has items from another restaurant. Clear and add from this restaurant?')) return; cart=[]; }
+  const exist=cart.find(c=>c.menuId===menuId);
+  if(exist) exist.qty++; else cart.push({restId,menuId,name,price,image,category,qty:1});
+  updateCartBar();
+};
+
+function updateCartBar(){
+  const count=cart.reduce((s,c)=>s+c.qty,0);
+  const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  cartCount.innerText=count;
+  if(count>0){ cartBar.style.display='flex'; cartBarText.innerText=`${count} items - UGX ${total.toLocaleString()}`; }
+  else cartBar.style.display='none';
+}
+
+window.openCheckout=()=>{
+  if(!cart.length) return;
+  checkoutModal.style.display='flex';
+  checkoutItems.innerHTML=cart.map(c=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #eee"><span>${c.name} x${c.qty}</span><span>UGX ${(c.price*c.qty).toLocaleString()}</span></div>`).join('');
+  checkoutTotal.innerText=cart.reduce((s,c)=>s+c.price*c.qty,0).toLocaleString();
+};
+window.closeCheckout=()=>{ checkoutModal.style.display='none'; };
+window.openCart=openCheckout;
+
+window.placeOrder=async()=>{
+  const name=custName.value.trim(), phone=custPhone.value.trim(), address=custAddress.value.trim();
+  if(!name||!phone||!address){ orderMsg.innerText='❌ Fill name, phone, address'; return; }
+  const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const totalQty=cart.reduce((s,c)=>s+c.qty,0);
+  orderMsg.innerText='⏳ Placing order...';
+  try{
+    await addDoc(collection(db,'orders'),{
+      restId:currentRest.id, restName:currentRest.name,
+      customerName:name, customerPhone:phone, customerAddress:address, note:custNote.value.trim(),
+      items:cart, total, totalQty, status:'new', orderNumber:Math.floor(100000+Math.random()*900000).toString(),
+      createdAt:serverTimestamp(), lat:userLat||null, lng:userLng||null
+    });
+    orderMsg.innerText='✅ Order placed! Restaurant will call you.'; cart=[]; updateCartBar();
+    setTimeout(()=>{ closeCheckout(); closeRest(); },2000);
+  }catch(e){ orderMsg.innerText='❌ '+e.message; }
+};
+
+// Load restaurants like screenshot 1 - GRID
+onSnapshot(query(collection(db,'restaurants'), where('status','==','approved')), snap=>{
+  allRests=[]; snap.forEach(d=> allRests.push({id:d.id,...d.data()}));
+  renderRestaurants(allRests);
+});
 </script>
 </body>
 </html>
